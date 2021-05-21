@@ -1,0 +1,9 @@
+node_modules
+*.tsbuildinfo
+dist*
+
+# dotenv environment variables file
+*.env
+*.sql
+
+key.txt

@@ -1,0 +1,97 @@
+version: "3.3"
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: ./config_docker/backend.dockerfile
+        env_file: production.env
+        command: ./dist/backend/index.js
+        ports:
+            - 3000:3000
+        networks:
+            - fcv2
+            - proxy
+        depends_on:
+            - postgres
+            - rabbitmq
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.middlewares.backend_stripprefix.stripprefix.prefixes=/api"
+            - "traefik.http.routers.backend.middlewares=backend_stripprefix"
+            - "traefik.http.routers.backend.rule=Host(`fc.kleselcodes.de`) && PathPrefix(`/api`)"
+            - "traefik.http.routers.backend.entrypoints=websecure"
+            - "traefik.http.routers.backend.tls.certresolver=myresolver"
+            - "traefik.http.services.backend.loadbalancer.server.port=3000"
+
+    material:
+        build:
+            context: .
+            dockerfile: ./config_docker/backend.dockerfile
+        env_file: production.env
+        command: ./dist/material-anal/index.js
+        networks:
+            - fcv2
+        depends_on:
+            - postgres
+            - rabbitmq
+    postgres:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_DB: fcv2
+        networks:
+            - fcv2
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+    rabbitmq:
+        image: rabbitmq
+        restart: always
+        networks:
+            - fcv2
+    # mino:
+    #   image: minio/minio
+    #   network_mode: host
+    #   environment:
+    #     MINIO_ACCESS_KEY: TrHF58rGOY4ARVVHVBuJ
+    #     MINIO_SECRET_KEY: uBT7As6ZQBMO8aDEGgDwQGkW9BPTT8rCckoe0KKz
+    #   volumes:
+    #     - minodata:/export
+    #   networks:
+    #     - proxy
+    #   command: server /data
+    #   labels:
+    #     - "traefik.enable=true"
+    #     - "traefik.http.routers.mino.rule=Host(`blob.kleselcodes.de`)"
+    #     - "traefik.http.routers.mino.entrypoints=websecure"
+    #     - "traefik.http.routers.mino.tls.certresolver=myresolver"
+    #     - "traefik.http.services.mino.loadbalancer.server.port=9000"
+
+    dashboard:
+        build:
+            context: .
+            dockerfile: ./config_docker/dashboard.ui.dockerfile
+        env_file: dashboard.production.env
+        networks:
+            - proxy
+        expose:
+            - "80"
+        depends_on:
+            - backend
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.dashboard.rule=Host(`fc.kleselcodes.de`)"
+            - "traefik.http.routers.dashboard.entrypoints=websecure"
+            - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+
+networks:
+    fcv2:
+    proxy:
+        external:
+            name: "traefik_proxy"
+
+volumes:
+    #minodata:
+    pgdata:

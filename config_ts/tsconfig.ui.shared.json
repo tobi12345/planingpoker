@@ -1,0 +1,27 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"module": "esnext",
+		"target": "ES2016",
+		"lib": [
+			"dom",
+			"ES2016"
+		],
+		"allowJs": false,
+		"jsx": "react",
+		"moduleResolution": "Node",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"resolveJsonModule": true,
+		"downlevelIteration": true,
+		"allowSyntheticDefaultImports": true
+	},
+	"include": [
+		"../src/ui-shared",
+	],
+	"references": [
+		{
+			"path": "./tsconfig.types.shared.json"
+		}
+	]
+}
