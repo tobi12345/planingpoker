@@ -6,7 +6,7 @@ import cors from "cors"
 import { Auth } from "./Auth"
 import { IStuff } from "../index"
 import { GamesRouter } from "./GamesRouter"
-import WebSocket from "ws"
+import { SocketServer } from "./SocketServer"
 
 export const Server = (stuff: IStuff) => {
 	const { config } = stuff
@@ -21,14 +21,7 @@ export const Server = (stuff: IStuff) => {
 
 	const server = http.createServer(app)
 
-	const socketServer = new WebSocket.Server({ server })
-	socketServer.on("connection", function connection(ws) {
-		ws.on("message", function incoming(message) {
-			console.log("received: %s", message)
-		})
-
-		ws.send("something")
-	})
+	SocketServer({ server, stuff })
 
 	const start = () => {
 		return new Promise<void>((resolve) => {

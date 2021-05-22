@@ -1,11 +1,15 @@
 import * as uuid from "uuid"
 import * as faker from "faker"
-import { Game, CreateGamePayload, Player } from "../types-shared/game"
+import { Game, CreateGamePayload, Player, CreatePlayerPayload } from "../types-shared/game"
+import { GameUpdate } from "../types-shared/SocketEvent"
+import WebSocket from "ws"
+import { NotFoundError } from "./rest/TypedExpress"
 
 export type Games = ReturnType<typeof Games>
 
 export const Games = () => {
 	const games = new Map<string, Game>()
+	const playerSockets = new Map<string, WebSocket>()
 
 	const createGame = (payload: CreateGamePayload) => {
 		const game: Game = {
@@ -16,59 +20,102 @@ export const Games = () => {
 		}
 
 		games.set(game.id, game)
+		return game
+	}
+
+	const getGame = (gameID: string) => {
+		const game = games.get(gameID)
+		if (!game) {
+			throw new NotFoundError(`Game ${gameID} not found`)
+		}
 
 		return game
 	}
 
-	const getGame = (id: string) => {
-		return games.get(id)
-	}
-
-	const resetGame = (id: string) => {
-		const game = games.get(id)
+	const resetGame = (gameID: string) => {
+		const game = games.get(gameID)
 		if (!game) {
-			return undefined
+			throw new NotFoundError(`Game ${gameID} not found`)
 		}
 		game.payers.map((player) => ({ ...player, currentVote: undefined }))
 		game.state = "hidden"
+		sendGameUpdate(game)
 		return game
 	}
 
-	const displayGameResult = (id: string) => {
-		const game = games.get(id)
+	const displayGameResult = (gameID: string) => {
+		const game = games.get(gameID)
 		if (!game) {
-			return undefined
+			throw new NotFoundError(`Game ${gameID} not found`)
 		}
 		game.state = "display"
+		sendGameUpdate(game)
 		return game
 	}
 
-	const addPayerToGame = (id: string, payer: Player) => {
-		const game = games.get(id)
-		if (!game || game.payers.some((player) => player.id === id)) {
-			return undefined
-		}
-		game.payers.push(payer)
-		return game
-	}
-
-	const removePayerFromGame = (id: string, playerID: string) => {
-		const game = games.get(id)
+	const addPayerToGame = (gameID: string, payload: CreatePlayerPayload) => {
+		const game = games.get(gameID)
 		if (!game) {
-			return undefined
+			throw new NotFoundError(`Game ${gameID} not found`)
+		}
+
+		const player: Player = {
+			id: uuid.v4(),
+			...payload,
+		}
+
+		game.payers.push(player)
+		sendGameUpdate(game)
+		return player
+	}
+
+	const removePayerFromGame = (gameID: string, playerID: string) => {
+		const game = games.get(gameID)
+		if (!game) {
+			throw new NotFoundError(`Game ${gameID} not found`)
 		}
 		game.payers = game.payers.filter((player) => player.id === playerID)
+		sendGameUpdate(game)
 		return game
 	}
 
-	const setPayerVoteGame = (id: string, playerID: string, vote: number) => {
-		const game = games.get(id)
+	const setPayerVoteForGame = (gameID: string, playerID: string, vote: number) => {
+		const game = games.get(gameID)
 		if (!game) {
-			return undefined
+			throw new NotFoundError(`Game ${gameID} not found`)
 		}
 		game.payers = game.payers.map((player) => (player.id === playerID ? { ...player, currentVote: vote } : player))
+		sendGameUpdate(game)
+	}
 
-		return game
+	const addPayerWebSocket = (gameID: string, payerID: string, socket: WebSocket) => {
+		const game = games.get(gameID)
+		if (!game || !game.payers.every((player) => player.id === payerID)) {
+			throw new NotFoundError(`Game ${gameID} not found`)
+		}
+
+		playerSockets.set(payerID, socket)
+		return true
+	}
+
+	const removePayerWebSocket = (payerID: string) => {
+		playerSockets.delete(payerID)
+	}
+
+	const sendGameUpdate = (game: Game) => {
+		const messageData: GameUpdate = {
+			kind: "game.update",
+			game,
+		}
+		const message = JSON.stringify(messageData)
+
+		game.payers.forEach(({ id }) => {
+			const socket = playerSockets.get(id)
+			if (!socket) {
+				return
+			}
+			socket.send(message)
+		})
 	}
 
 	return {
@@ -78,6 +125,8 @@ export const Games = () => {
 		displayGameResult,
 		addPayerToGame,
 		removePayerFromGame,
-		setPayerVoteGame,
+		setPayerVoteForGame,
+		addPayerWebSocket,
+		removePayerWebSocket,
 	}
 }

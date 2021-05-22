@@ -1,13 +1,36 @@
 import React from "react"
 import { Redirect, Route, RouteProps, Switch } from "react-router"
+import { usePlayerAuthentication } from "./hooks/usePlayerAuthentication"
 import { GameView } from "./views/GameView"
+import { JoinGameView } from "./views/JoinGameView"
 import { Start } from "./views/Start"
 
 export const RootRouter = () => {
+	const { isAuthenticated } = usePlayerAuthentication()
+
 	return (
 		<Switch>
 			<Route path={"/"} exact render={() => <Start />} />
-			<Route path={"/:id"} render={(props) => <GameView id={props.match.params.id} />} />
+			<Route
+				path={"/:id"}
+				exact
+				render={(props) => {
+					if (isAuthenticated) {
+						return <GameView id={props.match.params.id} />
+					}
+					return <Redirect to={`/${props.match.params.id}/join`} />
+				}}
+			/>
+			<Route
+				path={"/:id/join"}
+				render={(props) => {
+					if (isAuthenticated) {
+						return <Redirect to={`/${props.match.params.id}`} />
+					}
+					return <JoinGameView gameID={props.match.params.id} />
+				}}
+			/>
+			<Route render={() => <Redirect to={`/`} />} />
 		</Switch>
 	)
 }

@@ -19,7 +19,7 @@ export const Start = () => {
 	const [createGame, { isLoading }] = useCreateGame({
 		onSuccess: (game) => {
 			console.log(game)
-			history.push(`/${game.id}`)
+			history.push(`/${game.id}/join`)
 		},
 	})
 

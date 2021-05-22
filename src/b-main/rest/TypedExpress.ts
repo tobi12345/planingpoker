@@ -40,6 +40,11 @@ export const ErrorHandlerChecked = <Request, B>(
 	} catch (err) {
 		console.log(err)
 
+		if (err instanceof NotFoundError) {
+			res.status(HTTPStatusCodes.NOT_FOUND).json({ error: err.message })
+			return
+		}
+
 		res.status(HTTPStatusCodes.INTERNAL_SERVER_ERROR).end()
 	}
 }
@@ -59,4 +64,10 @@ export interface IBaseRouter {
 
 export const BaseRouter = () => {
 	return (Express.Router() as any) as IBaseRouter
+}
+
+export class NotFoundError extends Error {
+	constructor(message: string) {
+		super(message)
+	}
 }
