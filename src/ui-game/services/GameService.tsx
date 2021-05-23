@@ -18,7 +18,17 @@ export const GameService = (api: AxiosInstance) => {
 	}
 
 	const setPlayerVote = async (gameID: string, playerID: string, payload: SetPlayerVotePayload) => {
-		const response = await api.post<Player>(`/games/${gameID}/players/${playerID}`, payload)
+		const response = await api.put<void>(`/games/${gameID}/players/${playerID}`, payload)
+		return response.data
+	}
+
+	const resetGame = async (gameID: string) => {
+		const response = await api.put<void>(`/games/${gameID}/reset`)
+		return response.data
+	}
+
+	const showResult = async (gameID: string) => {
+		const response = await api.put<void>(`/games/${gameID}/display`)
 		return response.data
 	}
 
@@ -27,5 +37,7 @@ export const GameService = (api: AxiosInstance) => {
 		getGame,
 		createPlayer,
 		setPlayerVote,
+		resetGame,
+		showResult,
 	}
 }

@@ -2,7 +2,7 @@ import { IStuff } from ".."
 import { HTTPStatusCodes } from "./HTTPStatusCodes"
 import { BaseRouter, CheckRequestConvert, ErrorHandlerChecked } from "./TypedExpress"
 import { checkCreateGamePayload, checkCreatePlayerPayload, checkSetPlayerVotePayload } from "../../types-shared/game"
-import { Keys, TypeString, ConvertParseInt } from "../../types-shared/typechecker"
+import { Keys, TypeString } from "../../types-shared/typechecker"
 
 export const GamesRouter = ({ games }: IStuff) => {
 	const router = BaseRouter()
@@ -34,6 +34,36 @@ export const GamesRouter = ({ games }: IStuff) => {
 				}
 
 				res.status(HTTPStatusCodes.OK).json(game)
+			}),
+		),
+	)
+
+	router.put(
+		"/:gameID/reset",
+		CheckRequestConvert(
+			Keys({
+				params: Keys({
+					gameID: TypeString,
+				}),
+			}),
+			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
+				games.resetGame(gameID)
+				res.status(HTTPStatusCodes.OK).end()
+			}),
+		),
+	)
+
+	router.put(
+		"/:gameID/display",
+		CheckRequestConvert(
+			Keys({
+				params: Keys({
+					gameID: TypeString,
+				}),
+			}),
+			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
+				games.displayGameResult(gameID)
+				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
 	)

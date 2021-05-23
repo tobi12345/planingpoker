@@ -1,29 +1,32 @@
-import { ConvertJson, ConvertParseInt, Items, Keys, OneOf, TypeBoolean, TypeString } from "./typechecker"
+import { Items, Keys, OneOf, Or, TypeBoolean, TypeNumber, TypeString, TypeUndefined } from "./typechecker"
 
 export interface Player {
 	id: string
 	name: string
 	isActive: boolean
-	currentVote?: number
+	vote?: number
 }
 
 export const checkPlayer = Keys<Player>({
 	id: TypeString,
 	name: TypeString,
 	isActive: TypeBoolean,
+	vote: Or(TypeUndefined, TypeNumber),
 })
 
+export type VisibilityState = "hidden" | "display"
+const checkVisibilityState = OneOf("hidden", "display")
 export interface Game {
 	id: string
 	name: string
-	state: "hidden" | "display"
+	visibilityState: VisibilityState
 	payers: Player[]
 }
 
 export const checkGame = Keys<Game>({
 	id: TypeString,
 	name: TypeString,
-	state: OneOf("hidden", "display"),
+	visibilityState: checkVisibilityState,
 	payers: Items(checkPlayer),
 })
 
@@ -42,5 +45,5 @@ export interface SetPlayerVotePayload {
 }
 
 export const checkSetPlayerVotePayload = Keys<SetPlayerVotePayload>({
-	vote: ConvertParseInt,
+	vote: TypeNumber,
 })

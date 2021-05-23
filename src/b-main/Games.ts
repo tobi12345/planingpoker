@@ -16,7 +16,7 @@ export const Games = () => {
 			id: uuid.v4(),
 			name: faker.company.bs(),
 			payers: [],
-			state: "hidden",
+			visibilityState: "hidden",
 		}
 
 		games.set(game.id, game)
@@ -37,8 +37,8 @@ export const Games = () => {
 		if (!game) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-		game.payers.map((player) => ({ ...player, currentVote: undefined }))
-		game.state = "hidden"
+		game.payers = game.payers.map((player) => ({ ...player, vote: undefined }))
+		game.visibilityState = "hidden"
 		sendGameUpdate(game)
 		return game
 	}
@@ -48,7 +48,7 @@ export const Games = () => {
 		if (!game) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-		game.state = "display"
+		game.visibilityState = "display"
 		sendGameUpdate(game)
 		return game
 	}
@@ -85,7 +85,7 @@ export const Games = () => {
 		if (!game) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-		game.payers = game.payers.map((player) => (player.id === playerID ? { ...player, currentVote: vote } : player))
+		game.payers = game.payers.map((player) => (player.id === playerID ? { ...player, vote } : player))
 		sendGameUpdate(game)
 	}
 
