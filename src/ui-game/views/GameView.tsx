@@ -30,7 +30,7 @@ const GameTable = styled.div`
 
 const PlayersContainer = styled.div`
 	display: flex;
-	margin-bottom: 20px;
+	margin: 30px 0;
 `
 
 export const GameView = ({ gameID, player }: { gameID: string; player: Player }) => {

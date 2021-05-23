@@ -2,12 +2,14 @@ import { useEffect, useState } from "react"
 import { queryCache } from "react-query"
 import { checkSocketEvent } from "../../../types-shared/SocketEvent"
 import { And, ConvertJson, isCheckError } from "../../../types-shared/typechecker"
+import { useConfig, IConfig } from "../../Config"
 
 export const useGameUpdate = (gameID: string, playerID: string) => {
 	const [connectionCount, setConnectionCount] = useState(0)
+	const config = useConfig()
 
 	useEffect(() => {
-		const socket = connect(gameID, playerID)
+		const socket = connect(gameID, playerID, config)
 
 		if (!socket) {
 			return
@@ -15,7 +17,7 @@ export const useGameUpdate = (gameID: string, playerID: string) => {
 
 		const onVisibilityChange = () => {
 			if (document.visibilityState === "hidden") {
-				navigator.sendBeacon(`http://localhost:4001/games/${gameID}/players/${playerID}`)
+				navigator.sendBeacon(`${config.backendUrl}/games/${gameID}/players/${playerID}`)
 			} else {
 				setConnectionCount(connectionCount + 1)
 			}
@@ -30,9 +32,8 @@ export const useGameUpdate = (gameID: string, playerID: string) => {
 	}, [gameID, playerID, connectionCount])
 }
 
-const connect = (gameID: string, playerID: string) => {
-	const socket = new WebSocket(`ws://localhost:4001?gameID=${gameID}&playerID=${playerID}`)
-
+const connect = (gameID: string, playerID: string, config: IConfig) => {
+	const socket = new WebSocket(`${config.socketBackendUrl}?gameID=${gameID}&playerID=${playerID}`)
 	if (!socket) {
 		console.log("socket creation error")
 		return

@@ -1,18 +1,26 @@
 import React, { useContext } from "react"
 import { configFromEnv } from "../ui-shared/configFromEnv"
 
-interface IConfig {
+export interface IConfig {
 	backendUrl: string
+	socketBackendUrl: string
 }
 
 enum EnvVars {
-	REACT_APP_BACKEND_URL = "REACT_APP_BACKEND_URL",
+	REACT_APP_BACKEND_BASE_URL = "REACT_APP_BACKEND_BASE_URL",
+	REACT_APP_USE_SSL = "REACT_APP_USE_SSL",
 }
 
 export const config = configFromEnv<IConfig>({
-	make: (getValue) => ({
-		backendUrl: getValue(EnvVars.REACT_APP_BACKEND_URL),
-	}),
+	make: (getValue) => {
+		const backendUrl = getValue(EnvVars.REACT_APP_BACKEND_BASE_URL)
+		const useSSL = getValue(EnvVars.REACT_APP_USE_SSL) === "true"
+
+		return {
+			backendUrl: `http${useSSL ? "s" : ""}://${backendUrl}`,
+			socketBackendUrl: `ws${useSSL ? "s" : ""}://${backendUrl}`,
+		}
+	},
 })
 
 export const ConfigContext = React.createContext<IConfig>(config)

@@ -1,4 +1,3 @@
-import { Button } from "antd"
 import React from "react"
 import styled from "styled-components"
 import { useSetPlayerVote } from "../hooks/data/useSetPlayerVote"
@@ -32,8 +31,6 @@ const CardContainer = styled(BaseCard)`
 
 export const VotingCards = ({ gameID, playerID, myVote }: { gameID: string; playerID: string; myVote?: number }) => {
 	const [setPlayerVote, {}] = useSetPlayerVote()
-
-	console.log(myVote, CARD_SCRORES)
 
 	return (
 		<VotingCardsContainer>
