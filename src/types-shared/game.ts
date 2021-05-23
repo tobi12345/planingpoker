@@ -1,14 +1,16 @@
-import { ConvertJson, ConvertParseInt, Items, Keys, OneOf, TypeString } from "./typechecker"
+import { ConvertJson, ConvertParseInt, Items, Keys, OneOf, TypeBoolean, TypeString } from "./typechecker"
 
 export interface Player {
 	id: string
 	name: string
+	isActive: boolean
 	currentVote?: number
 }
 
 export const checkPlayer = Keys<Player>({
 	id: TypeString,
 	name: TypeString,
+	isActive: TypeBoolean,
 })
 
 export interface Game {

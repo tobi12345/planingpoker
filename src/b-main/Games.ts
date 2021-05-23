@@ -62,6 +62,7 @@ export const Games = () => {
 		const player: Player = {
 			id: uuid.v4(),
 			...payload,
+			isActive: false,
 		}
 
 		game.payers.push(player)
@@ -88,18 +89,31 @@ export const Games = () => {
 		sendGameUpdate(game)
 	}
 
-	const addPayerWebSocket = (gameID: string, payerID: string, socket: WebSocket) => {
+	const addPayerWebSocket = (gameID: string, playerID: string, socket: WebSocket) => {
 		const game = games.get(gameID)
-		if (!game || !game.payers.every((player) => player.id === payerID)) {
+		if (!game || !game.payers.some((player) => player.id === playerID)) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-
-		playerSockets.set(payerID, socket)
+		game.payers = game.payers.map((player) => (player.id === playerID ? { ...player, isActive: true } : player))
+		playerSockets.set(playerID, socket)
+		sendGameUpdate(game)
 		return true
 	}
 
-	const removePayerWebSocket = (payerID: string) => {
-		playerSockets.delete(payerID)
+	const removePayerWebSocket = (gameID: string, playerID: string) => {
+		const game = games.get(gameID)
+		const ws = playerSockets.get(playerID)
+		if (ws) {
+			ws.terminate()
+			playerSockets.delete(playerID)
+		}
+
+		if (game) {
+			game.payers = game.payers.map((player) =>
+				player.id === playerID ? { ...player, isActive: false } : player,
+			)
+			sendGameUpdate(game)
+		}
 	}
 
 	const sendGameUpdate = (game: Game) => {
@@ -108,7 +122,6 @@ export const Games = () => {
 			game,
 		}
 		const message = JSON.stringify(messageData)
-
 		game.payers.forEach(({ id }) => {
 			const socket = playerSockets.get(id)
 			if (!socket) {

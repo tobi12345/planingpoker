@@ -1,60 +1,27 @@
 import React from "react"
-import { Redirect, Route, RouteProps, Switch } from "react-router"
-import { usePlayerAuthentication } from "./hooks/usePlayerAuthentication"
+import { Redirect, Route, RouteComponentProps, RouteProps, StaticContext, Switch } from "react-router"
+import { usePlayer } from "./hooks/data/usePlayer"
 import { GameView } from "./views/GameView"
 import { JoinGameView } from "./views/JoinGameView"
 import { Start } from "./views/Start"
 
 export const RootRouter = () => {
-	const { isAuthenticated } = usePlayerAuthentication()
-
 	return (
 		<Switch>
 			<Route path={"/"} exact render={() => <Start />} />
-			<Route
-				path={"/:id"}
-				exact
-				render={(props) => {
-					if (isAuthenticated) {
-						return <GameView id={props.match.params.id} />
-					}
-					return <Redirect to={`/${props.match.params.id}/join`} />
-				}}
-			/>
-			<Route
-				path={"/:id/join"}
-				render={(props) => {
-					if (isAuthenticated) {
-						return <Redirect to={`/${props.match.params.id}`} />
-					}
-					return <JoinGameView gameID={props.match.params.id} />
-				}}
-			/>
+			<Route path={"/:gameID"} render={(props) => <Game {...props} />} />
 			<Route render={() => <Redirect to={`/`} />} />
 		</Switch>
 	)
 }
 
-interface IPrivateRouteProps extends Omit<RouteProps, "component"> {
-	isAuthenticated: (() => boolean) | boolean
-	fallbackUrl: string
-}
+const Game = (props: RouteComponentProps<any, StaticContext, unknown>) => {
+	const gameID = props.match.params.gameID
+	const { data: player } = usePlayer(gameID)
 
-export const PrivateRoute: React.FC<IPrivateRouteProps> = ({ render, isAuthenticated, fallbackUrl, ...rest }) => {
-	const isLoggedIn = typeof isAuthenticated === "function" ? isAuthenticated() : isAuthenticated
+	if (player) {
+		return <GameView gameID={gameID} player={player} />
+	}
 
-	return (
-		<Route
-			{...rest}
-			render={(props) =>
-				isLoggedIn && render ? (
-					render(props)
-				) : (
-					<Redirect
-						to={{ pathname: fallbackUrl, state: { from: props.location }, search: props.location.search }}
-					/>
-				)
-			}
-		/>
-	)
+	return <JoinGameView gameID={gameID} />
 }

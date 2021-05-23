@@ -62,6 +62,23 @@ export const GamesRouter = ({ games }: IStuff) => {
 		),
 	)
 
+	router.post(
+		"/:gameID/players/:playerID",
+		CheckRequestConvert(
+			Keys({
+				params: Keys({
+					gameID: TypeString,
+					playerID: TypeString,
+				}),
+			}),
+			ErrorHandlerChecked(async (req, { params: { gameID, playerID } }, res) => {
+				console.log("remove ws over post")
+				games.removePayerWebSocket(gameID, playerID)
+				res.status(HTTPStatusCodes.OK).end()
+			}),
+		),
+	)
+
 	router.put(
 		"/:gameID/players/:playerID",
 		CheckRequestConvert(

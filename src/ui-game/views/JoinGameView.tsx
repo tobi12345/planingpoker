@@ -17,7 +17,6 @@ const initialFormValues: CreatePlayerPayload = { name: "" }
 
 export const JoinGameView = ({ gameID }: { gameID: string }) => {
 	const [form] = useForm()
-	const history = useHistory()
 
 	const [createPlayer, { isLoading }] = useCreatePlayer()
 
