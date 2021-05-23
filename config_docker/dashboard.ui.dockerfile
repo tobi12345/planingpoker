@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 
 RUN npm ci
-RUN npm run tsc
+RUN npm run build
 RUN npm run build:game
 
 FROM nginx:stable
