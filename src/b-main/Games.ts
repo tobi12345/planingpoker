@@ -15,7 +15,7 @@ export const Games = () => {
 		const game: Game = {
 			id: uuid.v4(),
 			name: faker.company.bs(),
-			payers: [],
+			players: [],
 			visibilityState: "hidden",
 		}
 
@@ -37,7 +37,7 @@ export const Games = () => {
 		if (!game) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-		game.payers = game.payers.map((player) => ({ ...player, vote: undefined }))
+		game.players = game.players.map((player) => ({ ...player, vote: undefined }))
 		game.visibilityState = "hidden"
 		sendGameUpdate(game)
 		return game
@@ -65,7 +65,7 @@ export const Games = () => {
 			isActive: false,
 		}
 
-		game.payers.push(player)
+		game.players.push(player)
 		sendGameUpdate(game)
 		return player
 	}
@@ -75,7 +75,7 @@ export const Games = () => {
 		if (!game) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-		game.payers = game.payers.filter((player) => player.id === playerID)
+		game.players = game.players.filter((player) => player.id === playerID)
 		sendGameUpdate(game)
 		return game
 	}
@@ -85,16 +85,16 @@ export const Games = () => {
 		if (!game) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-		game.payers = game.payers.map((player) => (player.id === playerID ? { ...player, vote } : player))
+		game.players = game.players.map((player) => (player.id === playerID ? { ...player, vote } : player))
 		sendGameUpdate(game)
 	}
 
 	const addPayerWebSocket = (gameID: string, playerID: string, socket: WebSocket) => {
 		const game = games.get(gameID)
-		if (!game || !game.payers.some((player) => player.id === playerID)) {
+		if (!game || !game.players.some((player) => player.id === playerID)) {
 			throw new NotFoundError(`Game ${gameID} not found`)
 		}
-		game.payers = game.payers.map((player) => (player.id === playerID ? { ...player, isActive: true } : player))
+		game.players = game.players.map((player) => (player.id === playerID ? { ...player, isActive: true } : player))
 		playerSockets.set(playerID, socket)
 		sendGameUpdate(game)
 		return true
@@ -109,7 +109,7 @@ export const Games = () => {
 		}
 
 		if (game) {
-			game.payers = game.payers.map((player) =>
+			game.players = game.players.map((player) =>
 				player.id === playerID ? { ...player, isActive: false } : player,
 			)
 			sendGameUpdate(game)
@@ -122,7 +122,7 @@ export const Games = () => {
 			game,
 		}
 		const message = JSON.stringify(messageData)
-		game.payers.forEach(({ id }) => {
+		game.players.forEach(({ id }) => {
 			const socket = playerSockets.get(id)
 			if (!socket) {
 				return

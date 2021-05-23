@@ -20,14 +20,14 @@ export interface Game {
 	id: string
 	name: string
 	visibilityState: VisibilityState
-	payers: Player[]
+	players: Player[]
 }
 
 export const checkGame = Keys<Game>({
 	id: TypeString,
 	name: TypeString,
 	visibilityState: checkVisibilityState,
-	payers: Items(checkPlayer),
+	players: Items(checkPlayer),
 })
 
 export interface CreateGamePayload {}

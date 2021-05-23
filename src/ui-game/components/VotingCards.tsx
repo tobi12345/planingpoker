@@ -2,32 +2,55 @@ import { Button } from "antd"
 import React from "react"
 import styled from "styled-components"
 import { useSetPlayerVote } from "../hooks/data/useSetPlayerVote"
+import { BaseCard } from "./BaseCard"
 
 const CARD_SCRORES = [1, 2, 3, 5, 8, 13, 20, 40, 100]
 
 const VotingCardsContainer = styled.div``
 
-const CardContainer = styled.div``
-
-const StyledButton = styled(Button)`
-	width: 80px;
+const Title = styled.div`
+	text-align: center;
+	margin-bottom: 20px;
+	font-size: 18px;
 `
 
-export const VotingCards = ({ gameID, playerID }: { gameID: string; playerID: string }) => {
+const VotingCardsWrapper = styled.div`
+	display: flex;
+	justify-content: center;
+`
+
+const CardContainer = styled(BaseCard)`
+	border: 2px solid #54a0ff;
+	margin: 0 8px;
+	color: #54a0ff;
+	cursor: pointer;
+
+	&:hover {
+		background: #54a0ff4e;
+	}
+`
+
+export const VotingCards = ({ gameID, playerID, myVote }: { gameID: string; playerID: string; myVote?: number }) => {
 	const [setPlayerVote, {}] = useSetPlayerVote()
+
+	console.log(myVote, CARD_SCRORES)
 
 	return (
 		<VotingCardsContainer>
-			{CARD_SCRORES.map((score) => (
-				<CardContainer key={score}>
-					<StyledButton
+			<Title>Choose your card 👇</Title>
+			<VotingCardsWrapper>
+				{CARD_SCRORES.map((score) => (
+					<CardContainer
+						style={{
+							transform: myVote === score ? `translateY(-10px)` : undefined,
+						}}
+						key={score}
 						onClick={() => setPlayerVote({ gameID, payload: { vote: score }, playerID })}
-						type={"primary"}
 					>
 						{score}
-					</StyledButton>
-				</CardContainer>
-			))}
+					</CardContainer>
+				))}
+			</VotingCardsWrapper>
 		</VotingCardsContainer>
 	)
 }
