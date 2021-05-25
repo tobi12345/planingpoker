@@ -4,8 +4,14 @@ const webpack = require("webpack")
 const getEnvs = require("./getEnvs")
 const FaviconsWebpackPlugin = require("favicons-webpack-plugin")
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin")
+const getPort = require("get-port")
 
-module.exports = (envs) => {
+module.exports = async (envs) => {
+	const envPort = envs.port ?? 3000
+	const ports = new Set([envPort, 3000, 3001, 3002])
+
+	const port = await getPort({ port: Array.from(ports.values()) })
+
 	return {
 		mode: "development",
 		entry: path.resolve(__dirname, "..", "dist", `ui-${envs.project}`, "index.js"),
@@ -43,7 +49,7 @@ module.exports = (envs) => {
 			clientLogLevel: "none",
 			noInfo: true,
 			open: true,
-			port: envs.port,
+			port,
 			host: "0.0.0.0",
 			onListening: function (server) {
 				const port = server.listeningApp.address().port

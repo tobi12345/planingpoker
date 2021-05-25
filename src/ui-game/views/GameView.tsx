@@ -79,7 +79,16 @@ const ResultStatisticsContainer = styled.div`
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-gap: 20px;
-	place-items: center;
+`
+
+const Result = styled.div`
+	font-size: 18px;
+	text-align: center;
+	font-weight: bold;
+`
+const ResultNames = styled.div`
+	font-size: 13px;
+	font-weight: normal;
 `
 
 const ResultBox = ({ game: { players, id } }: { game: Game }) => {
@@ -88,14 +97,22 @@ const ResultBox = ({ game: { players, id } }: { game: Game }) => {
 	const playerWithVote = players.filter((player) => !!player.vote)
 	const averageVote = playerWithVote.reduce((acc, cur) => acc + (cur.vote ?? 0), 0) / playerWithVote.length
 	const maxPlayer = maxBy(players, (player) => player.vote)
+	const maxPlayers = playerWithVote.filter((player) => player.vote === maxPlayer?.vote).map((palyer) => palyer.name)
 	const minPlayer = minBy(players, (player) => player.vote)
+	const minPlayers = playerWithVote.filter((player) => player.vote === minPlayer?.vote).map((palyer) => palyer.name)
 
 	return (
 		<>
 			<ResultStatisticsContainer>
-				<Statistic title="AVG" value={averageVote} />
-				<Statistic title={`MAX (${maxPlayer?.name ?? "-"})`} value={maxPlayer?.vote ?? -1} />
-				<Statistic title={`MIN (${minPlayer?.name ?? "-"})`} value={minPlayer?.vote ?? -1} />
+				<Result>
+					{`MIN: ${minPlayer?.vote ?? -1}`}
+					<ResultNames>{minPlayers.join(", ")}</ResultNames>
+				</Result>
+				<Result>{`AVG: ${averageVote}`}</Result>
+				<Result>
+					{`MAX: ${maxPlayer?.vote ?? -1} `}
+					<ResultNames>{maxPlayers.join(", ")}</ResultNames>
+				</Result>
 			</ResultStatisticsContainer>
 			<Button
 				type="primary"
