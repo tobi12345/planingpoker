@@ -5,7 +5,7 @@ services:
             context: .
             dockerfile: ./config_docker/backend.dockerfile
         env_file: production.env
-        command: ./dist/backend/index.js
+        command: ./dist/b-main/index.js
         ports:
             - 4000:4000
         networks:
@@ -46,9 +46,9 @@ services:
             - backend
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.dashboard.rule=Host(`pp.kleselcodes.de`)"
-            - "traefik.http.routers.dashboard.entrypoints=websecure"
-            - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+            - "traefik.http.routers.game-ui.rule=Host(`pp.kleselcodes.de`)"
+            - "traefik.http.routers.game-ui.entrypoints=websecure"
+            - "traefik.http.routers.game-ui.tls.certresolver=myresolver"
 
 networks:
     pp:
