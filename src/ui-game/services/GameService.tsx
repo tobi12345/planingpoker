@@ -13,7 +13,7 @@ export const GameService = (api: AxiosInstance) => {
 	}
 
 	const createPlayer = async (gameID: string, payload: CreatePlayerPayload) => {
-		const response = await api.post<Player>(`/games/${gameID}/players`, payload)
+		const response = await api.post<{ player: Player; token: string }>(`/games/${gameID}/players`, payload)
 		return response.data
 	}
 

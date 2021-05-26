@@ -5,6 +5,7 @@ import { Services, ServicesContext } from "./services/Services"
 import { ReactQueryConfigProvider, ReactQueryConfig } from "react-query"
 import { RootRouter } from "./RootRouter"
 import { BrowserRouter } from "react-router-dom"
+import { PLAYER_TOKEN } from "./hooks/data/useCreatePlayer"
 
 const reactQueryConfig: ReactQueryConfig = {
 	queries: {
@@ -21,6 +22,7 @@ export const App = () => {
 		})
 
 		client.interceptors.request.use(function (config) {
+			config.headers.Authorization = localStorage.getItem(PLAYER_TOKEN)
 			return config
 		})
 

@@ -1,10 +1,42 @@
 import { IStuff } from ".."
 import { HTTPStatusCodes } from "./HTTPStatusCodes"
-import { BaseRouter, CheckRequestConvert, ErrorHandlerChecked } from "./TypedExpress"
-import { checkCreateGamePayload, checkCreatePlayerPayload, checkSetPlayerVotePayload } from "../../types-shared/game"
-import { Keys, TypeString } from "../../types-shared/typechecker"
+import { BaseRouter, CheckRequestConvert, ErrorHandlerChecked, UnauthorizedError } from "./TypedExpress"
+import {
+	checkCreateGamePayload,
+	checkCreatePlayerPayload,
+	checkPlayer,
+	checkSetPlayerVotePayload,
+} from "../../types-shared/game"
+import { isCheckError, Keys, TypeString } from "../../types-shared/typechecker"
+import * as jwt from "jsonwebtoken"
+import e from "express"
+import { IConfig } from "../config"
 
-export const GamesRouter = ({ games }: IStuff) => {
+const checkPlayerAuthorization = (config: IConfig, req: e.Request, playerID: string) => {
+	const token = (req.query.authToken as string | undefined) ?? req.headers.authorization
+
+	if (!token) {
+		throw new UnauthorizedError("authorization token missing")
+	}
+
+	try {
+		const payload = jwt.verify(token, config.jwt.secret)
+
+		const checkerResult = checkPlayer(payload)
+
+		if (isCheckError(checkerResult)) {
+			throw new UnauthorizedError("authorization token invalid")
+		}
+
+		if (checkerResult[1].id !== playerID) {
+			throw new UnauthorizedError("authorization token invalid")
+		}
+	} catch (error) {
+		throw new UnauthorizedError("authorization token invalid")
+	}
+}
+
+export const GamesRouter = ({ games, config }: IStuff) => {
 	const router = BaseRouter()
 
 	router.post(
@@ -87,7 +119,11 @@ export const GamesRouter = ({ games }: IStuff) => {
 					return
 				}
 
-				res.status(HTTPStatusCodes.OK).json(player)
+				const token = jwt.sign(player, config.jwt.secret, {
+					expiresIn: "365d",
+				})
+
+				res.status(HTTPStatusCodes.OK).json({ token, player })
 			}),
 		),
 	)
@@ -120,6 +156,7 @@ export const GamesRouter = ({ games }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { body: { vote }, params: { gameID, playerID } }, res) => {
+				checkPlayerAuthorization(config, req, playerID)
 				games.setPayerVoteForGame(gameID, playerID, vote)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
