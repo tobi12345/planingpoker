@@ -19,16 +19,23 @@ const GameContainer = styled.div`
 
 const GameTable = styled.div`
 	width: 400px;
-	height: 230px;
+	min-height: 230px;
 	display: grid;
 	place-items: center;
 	background: #54a0ff4e;
 	border-radius: 10px;
 	margin-bottom: 20px;
+
+	@media (max-width: 700px) {
+		width: 100%;
+		border-radius: 0px;
+	}
 `
 
 const PlayersContainer = styled.div`
 	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
 	margin: 30px 0;
 `
 

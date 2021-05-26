@@ -16,14 +16,14 @@ const Title = styled.div`
 const VotingCardsWrapper = styled.div`
 	display: flex;
 	justify-content: center;
+	flex-wrap: wrap;
 `
 
 const CardContainer = styled(BaseCard)`
 	border: 2px solid #54a0ff;
-	margin: 0 8px;
+	margin: 0 8px 20px 8px;
 	color: #54a0ff;
 	cursor: pointer;
-
 	&:hover {
 		background: #54a0ff4e;
 	}
