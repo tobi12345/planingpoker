@@ -80,7 +80,7 @@ export const Games = () => {
 		return game
 	}
 
-	const setPayerVoteForGame = (gameID: string, playerID: string, vote: number) => {
+	const setPayerVoteForGame = (gameID: string, playerID: string, vote?: number | string) => {
 		const game = games.get(gameID)
 		if (!game) {
 			throw new NotFoundError(`Game ${gameID} not found`)

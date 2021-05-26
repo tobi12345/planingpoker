@@ -3,7 +3,7 @@ import styled from "styled-components"
 import { useSetPlayerVote } from "../hooks/data/useSetPlayerVote"
 import { BaseCard } from "./BaseCard"
 
-const CARD_SCRORES = [1, 2, 3, 5, 8, 13, 20, 40, 100]
+const CARD_SCRORES = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, "?", "☕"]
 
 const VotingCardsContainer = styled.div``
 
@@ -29,7 +29,15 @@ const CardContainer = styled(BaseCard)`
 	}
 `
 
-export const VotingCards = ({ gameID, playerID, myVote }: { gameID: string; playerID: string; myVote?: number }) => {
+export const VotingCards = ({
+	gameID,
+	playerID,
+	myVote,
+}: {
+	gameID: string
+	playerID: string
+	myVote?: number | string
+}) => {
 	const [setPlayerVote, {}] = useSetPlayerVote()
 
 	return (
@@ -42,7 +50,10 @@ export const VotingCards = ({ gameID, playerID, myVote }: { gameID: string; play
 							transform: myVote === score ? `translateY(-10px)` : undefined,
 						}}
 						key={score}
-						onClick={() => setPlayerVote({ gameID, payload: { vote: score }, playerID })}
+						onClick={() => {
+							const vote = score === myVote ? undefined : score
+							setPlayerVote({ gameID, payload: { vote }, playerID })
+						}}
 					>
 						{score}
 					</CardContainer>

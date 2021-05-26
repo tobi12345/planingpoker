@@ -30,7 +30,7 @@ export const PlayerCard = ({
 }) => {
 	return (
 		<PlayerCardContainer>
-			{visibilityState === "hidden" && <PlayerCardHiddenBox>{vote ? "👍" : ""}</PlayerCardHiddenBox>}
+			{visibilityState === "hidden" && <PlayerCardHiddenBox>{vote && "👍"}</PlayerCardHiddenBox>}
 			{visibilityState === "display" && <PlayerCardResultBox>{vote ?? "🤦‍♀️"}</PlayerCardResultBox>}
 			<PlayerName>{name}</PlayerName>
 		</PlayerCardContainer>

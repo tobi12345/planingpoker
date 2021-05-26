@@ -4,14 +4,14 @@ export interface Player {
 	id: string
 	name: string
 	isActive: boolean
-	vote?: number
+	vote?: number | string
 }
 
 export const checkPlayer = Keys<Player>({
 	id: TypeString,
 	name: TypeString,
 	isActive: TypeBoolean,
-	vote: Or(TypeUndefined, TypeNumber),
+	vote: Or(Or(TypeNumber, TypeUndefined), TypeString),
 })
 
 export type VisibilityState = "hidden" | "display"
@@ -41,9 +41,9 @@ export const checkCreatePlayerPayload = Keys<CreatePlayerPayload>({
 })
 
 export interface SetPlayerVotePayload {
-	vote: number
+	vote?: number | string
 }
 
 export const checkSetPlayerVotePayload = Keys<SetPlayerVotePayload>({
-	vote: TypeNumber,
+	vote: Or(Or(TypeNumber, TypeUndefined), TypeString),
 })

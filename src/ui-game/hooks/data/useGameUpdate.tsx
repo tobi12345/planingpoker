@@ -40,11 +40,11 @@ const connect = (gameID: string, playerID: string, config: IConfig) => {
 	}
 
 	socket.onopen = (event) => {
-		console.log("connected")
+		// console.log("connected")
 	}
 
 	socket.onclose = (event) => {
-		console.log("disconnected")
+		// console.log("disconnected")
 	}
 
 	socket.onmessage = (event) => {

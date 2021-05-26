@@ -1,4 +1,4 @@
-import { Button, Statistic } from "antd"
+import { Button } from "antd"
 import React from "react"
 import styled from "styled-components"
 import { Game, Player } from "../../types-shared/game"
@@ -7,9 +7,8 @@ import { PlayerCard } from "../components/PlayerCard"
 import { VotingCards } from "../components/VotingCards"
 import { useGame } from "../hooks/data/useGame"
 import { useGameUpdate } from "../hooks/data/useGameUpdate"
-import { useResetGame } from "../hooks/data/useResetGame"
 import { useShowResult } from "../hooks/data/useShowResult"
-import { maxBy, minBy } from "lodash"
+import { Results } from "../components/Results"
 
 const GameContainer = styled.div`
 	height: 100%;
@@ -19,8 +18,8 @@ const GameContainer = styled.div`
 `
 
 const GameTable = styled.div`
-	width: 350px;
-	height: 180px;
+	width: 400px;
+	height: 230px;
 	display: grid;
 	place-items: center;
 	background: #54a0ff4e;
@@ -48,9 +47,10 @@ const Game = ({ game, player }: { game: Game; player: Player }) => {
 	return (
 		<GameContainer>
 			<GameTable>
-				{game.visibilityState === "display" && <ResultBox game={game} />}
+				{game.visibilityState === "display" && <Results game={game} />}
 				{game.visibilityState === "hidden" && (
 					<Button
+						size="large"
 						type="primary"
 						loading={isLoadingShowResult}
 						onClick={() =>
@@ -72,59 +72,5 @@ const Game = ({ game, player }: { game: Game; player: Player }) => {
 			<div style={{ height: "30px" }}></div>
 			{/* <pre>{JSON.stringify(game, null, 4)}</pre> */}
 		</GameContainer>
-	)
-}
-
-const ResultStatisticsContainer = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	grid-gap: 20px;
-`
-
-const Result = styled.div`
-	font-size: 18px;
-	text-align: center;
-	font-weight: bold;
-`
-const ResultNames = styled.div`
-	font-size: 13px;
-	font-weight: normal;
-`
-
-const ResultBox = ({ game: { players, id } }: { game: Game }) => {
-	const [resetGame, { isLoading: isLoadingResetGame }] = useResetGame()
-
-	const playerWithVote = players.filter((player) => !!player.vote)
-	const averageVote = playerWithVote.reduce((acc, cur) => acc + (cur.vote ?? 0), 0) / playerWithVote.length
-	const maxPlayer = maxBy(players, (player) => player.vote)
-	const maxPlayers = playerWithVote.filter((player) => player.vote === maxPlayer?.vote).map((palyer) => palyer.name)
-	const minPlayer = minBy(players, (player) => player.vote)
-	const minPlayers = playerWithVote.filter((player) => player.vote === minPlayer?.vote).map((palyer) => palyer.name)
-
-	return (
-		<>
-			<ResultStatisticsContainer>
-				<Result>
-					{`MIN: ${minPlayer?.vote ?? -1}`}
-					<ResultNames>{minPlayers.join(", ")}</ResultNames>
-				</Result>
-				<Result>{`AVG: ${averageVote}`}</Result>
-				<Result>
-					{`MAX: ${maxPlayer?.vote ?? -1} `}
-					<ResultNames>{maxPlayers.join(", ")}</ResultNames>
-				</Result>
-			</ResultStatisticsContainer>
-			<Button
-				type="primary"
-				loading={isLoadingResetGame}
-				onClick={() =>
-					resetGame({
-						gameID: id,
-					})
-				}
-			>
-				Reset
-			</Button>
-		</>
 	)
 }
