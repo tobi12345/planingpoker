@@ -9,4 +9,16 @@ export namespace TablesV1 {
 		},
 		date_removed: { type: ColumnType.TimestampTZ, nullable: true },
 	})
+
+	export const administrators = TableSchema({
+		administrator_id: {
+			type: ColumnType.UUID,
+			primaryKey: true,
+			createIndex: true,
+			nullable: false,
+		},
+		email: { type: ColumnType.Text, nullable: false },
+		password: { type: ColumnType.Text, nullable: false },
+		...baseSchema,
+	})
 }

@@ -32,6 +32,10 @@ export const Games = () => {
 		return game
 	}
 
+	const getGames = () => {
+		return Array.from(games.entries())
+	}
+
 	const resetGame = (gameID: string) => {
 		const game = games.get(gameID)
 		if (!game) {
@@ -134,6 +138,7 @@ export const Games = () => {
 	return {
 		createGame,
 		getGame,
+		getGames,
 		resetGame,
 		displayGameResult,
 		addPayerToGame,
