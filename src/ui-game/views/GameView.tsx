@@ -9,6 +9,7 @@ import { useGame } from "../hooks/data/useGame"
 import { useGameUpdate } from "../hooks/data/useGameUpdate"
 import { useShowResult } from "../hooks/data/useShowResult"
 import { Results } from "../components/Results"
+import { ShareIcon } from "../components/ShareIcon"
 
 const GameContainer = styled.div`
 	height: 100%;
@@ -37,6 +38,14 @@ const PlayersContainer = styled.div`
 	justify-content: center;
 	flex-wrap: wrap;
 	margin: 30px 0;
+`
+
+const StyledShareIcon = styled(ShareIcon)`
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	width: 20px;
+	height: 20px;
 `
 
 export const GameView = ({ gameID, player }: { gameID: string; player: Player }) => {
@@ -77,6 +86,7 @@ const Game = ({ game, player }: { game: Game; player: Player }) => {
 			</PlayersContainer>
 			<VotingCards gameID={game.id} playerID={player.id} myVote={myVote} />
 			<div style={{ height: "30px" }}></div>
+			<StyledShareIcon />
 			{/* <pre>{JSON.stringify(game, null, 4)}</pre> */}
 		</GameContainer>
 	)
