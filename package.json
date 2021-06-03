@@ -8,6 +8,8 @@
 		"start:backend": "node ./dist/b-main/index.js",
 		"build:game": "webpack --config ./config_webpack/webpack.config.js --mode production --env.project=game",
 		"start:game": "webpack-dev-server --config ./config_webpack/dev.webpack.config.js --env.project=game --env.port=3001",
+		"start:admin": "webpack-dev-server --config ./config_webpack/dev.webpack.config.js --env.project=admin --env.port=3002",
+		"build:admin": "webpack --config ./config_webpack/webpack.config.js --mode production --env.project=admin",
 		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./src/**/*.{ts,tsx,js,jsx}"
 	},
 	"husky": {

@@ -13,7 +13,7 @@
 		"downlevelIteration": true,
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["../src/ui-game"],
+	"include": ["../src/ui-game", "../src/ui-admin"],
 	"references": [
 		{
 			"path": "./tsconfig.types.shared.json"

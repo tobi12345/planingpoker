@@ -9,6 +9,7 @@ export interface IConfig {
 	jwt: {
 		secret: string
 	}
+	passwordSecret: string
 }
 
 const requiredEnvVars: string[] = []
@@ -29,7 +30,7 @@ export const configFromEnv = (): IConfig => {
 			user: process.env["POSTGRES_USER"] || "postgres",
 			clear: process.env["POSTGRES_CLEAR"] === "true",
 		},
-
+		passwordSecret: process.env["PASSWORD_SECRET"] || "72865779884567890093833338832837151253192",
 		rest: {
 			port: parseInt(process.env["PORT"] || "4001"),
 			key: process.env["REST_KEY"] || "4a76dbd4-688e-4921-90b8-2c2041d4b77c",

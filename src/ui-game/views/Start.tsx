@@ -2,7 +2,7 @@ import { Button } from "antd"
 import React from "react"
 import { useHistory } from "react-router"
 import styled from "styled-components"
-import { CardLogo } from "../components/CardLogo"
+import { CardLogo } from "../../ui-shared/components/CardLogo"
 import { useCreateGame } from "../hooks/data/useCreateGame"
 
 const StartContainer = styled.div`
