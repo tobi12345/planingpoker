@@ -32,6 +32,17 @@ export const Games = () => {
 		return game
 	}
 
+	const updateGame = (game: Game) => {
+		const _game = games.get(game.id)
+		if (!_game) {
+			throw new NotFoundError(`Game ${game.id} not found`)
+		}
+
+		games.set(game.id, game)
+		sendGameUpdate(game)
+		return game
+	}
+
 	const getGames = () => {
 		return Array.from(games.entries())
 	}
@@ -139,6 +150,7 @@ export const Games = () => {
 		createGame,
 		getGame,
 		getGames,
+		updateGame,
 		resetGame,
 		displayGameResult,
 		addPayerToGame,

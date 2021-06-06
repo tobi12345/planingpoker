@@ -7,7 +7,12 @@ export const AdminService = (api: AxiosInstance) => {
 		return response.data
 	}
 
+	const updateGame = async (game: Game) => {
+		await api.put<void>(`/administrator/games/${game.id}`, game)
+	}
+
 	return {
 		getGames,
+		updateGame,
 	}
 }
