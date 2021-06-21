@@ -1,6 +1,7 @@
+import { IBaseConfig } from "../b-shared/BaseConfig"
 import { IDatabaseConfig } from "../database/database"
 
-export interface IConfig {
+export interface IConfig extends IBaseConfig {
 	database: IDatabaseConfig
 	rest: {
 		port: number
@@ -37,6 +38,11 @@ export const configFromEnv = (): IConfig => {
 		},
 		jwt: {
 			secret: process.env["JWT_SECRET"] || "",
+		},
+		instanceID: process.env["INSTANCE_ID"] || "main",
+		redis: {
+			host: process.env["REDIS_HOST"] || "localhost",
+			port: parseInt(process.env["REDIS_PORT"] || "6379"),
 		},
 	}
 }

@@ -9,7 +9,7 @@
 			"request": "launch",
 			"name": "Debug Backend",
 			"skipFiles": ["<node_internals>/**"],
-			"program": "${workspaceFolder}/dist/backend/index.js",
+			"program": "${workspaceFolder}/dist/b-main/index.js",
 			"outFiles": ["${workspaceFolder}/**/*.js"],
 			"env": {
 				"NODE_ENV": "development"

@@ -16,10 +16,13 @@ export const checkPlayer = Keys<Player>({
 
 export type VisibilityState = "hidden" | "display"
 const checkVisibilityState = OneOf("hidden", "display")
-export interface Game {
+
+export interface BaseGame {
 	id: string
 	name: string
 	visibilityState: VisibilityState
+}
+export interface Game extends BaseGame {
 	players: Player[]
 }
 

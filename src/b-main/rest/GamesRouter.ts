@@ -1,6 +1,4 @@
 import { IStuff } from ".."
-import { HTTPStatusCodes } from "./HTTPStatusCodes"
-import { BaseRouter, CheckRequestConvert, ErrorHandlerChecked, UnauthorizedError } from "./TypedExpress"
 import {
 	checkCreateGamePayload,
 	checkCreatePlayerPayload,
@@ -11,6 +9,9 @@ import { isCheckError, Keys, TypeString } from "../../types-shared/typechecker"
 import * as jwt from "jsonwebtoken"
 import e from "express"
 import { IConfig } from "../config"
+import { HTTPStatusCodes } from "../../b-shared/HTTPStatusCodes"
+import { UnauthorizedError, BaseRouter, CheckRequestConvert, ErrorHandlerChecked } from "../../b-shared/TypedExpress"
+import { SendGameUpdate } from "../GameUpdateService"
 
 const checkPlayerAuthorization = (config: IConfig, req: e.Request, playerID: string) => {
 	const token = (req.query.authToken as string | undefined) ?? req.headers.authorization
@@ -36,15 +37,18 @@ const checkPlayerAuthorization = (config: IConfig, req: e.Request, playerID: str
 	}
 }
 
-export const GamesRouter = ({ games, config }: IStuff) => {
+export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 	const router = BaseRouter()
+
+	const sendGameUpdate = SendGameUpdate(games, gameUpdateService)
 
 	router.post(
 		"/",
 		CheckRequestConvert(
 			checkCreateGamePayload,
 			ErrorHandlerChecked(async (req, payload, res) => {
-				res.status(HTTPStatusCodes.CREATED).json(games.createGame(payload))
+				const game = await games.createGame(payload)
+				res.status(HTTPStatusCodes.CREATED).json(game)
 			}),
 		),
 	)
@@ -58,13 +62,7 @@ export const GamesRouter = ({ games, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
-				const game = games.getGame(gameID)
-
-				if (!game) {
-					res.status(HTTPStatusCodes.NOT_FOUND).json({ error: `Game with id: ${gameID} not found` })
-					return
-				}
-
+				const game = await games.getFullGame(gameID)
 				res.status(HTTPStatusCodes.OK).json(game)
 			}),
 		),
@@ -79,7 +77,9 @@ export const GamesRouter = ({ games, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
-				games.resetGame(gameID)
+				await games.resetGame(gameID)
+				await games.resetGamePlayer(gameID)
+				await sendGameUpdate(gameID)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
@@ -94,7 +94,8 @@ export const GamesRouter = ({ games, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
-				games.displayGameResult(gameID)
+				await games.displayGameResult(gameID)
+				await sendGameUpdate(gameID)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
@@ -110,19 +111,12 @@ export const GamesRouter = ({ games, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { body: createPlayerPayload, params: { gameID } }, res) => {
-				const player = games.addPayerToGame(gameID, createPlayerPayload)
-
-				if (!player) {
-					res.status(HTTPStatusCodes.NOT_FOUND).json({
-						error: `Game with id: ${gameID} not found`,
-					})
-					return
-				}
-
+				await games.getGame(gameID)
+				const player = await games.addPayerToGame(gameID, createPlayerPayload)
 				const token = jwt.sign(player, config.jwt.secret, {
 					expiresIn: "365d",
 				})
-
+				await sendGameUpdate(gameID)
 				res.status(HTTPStatusCodes.OK).json({ token, player })
 			}),
 		),
@@ -139,7 +133,8 @@ export const GamesRouter = ({ games, config }: IStuff) => {
 			}),
 			ErrorHandlerChecked(async (req, { params: { gameID, playerID } }, res) => {
 				console.log("remove ws over post")
-				games.removePayerWebSocket(gameID, playerID)
+				gameUpdateService.removePayerWebSocket(playerID)
+				await sendGameUpdate(gameID)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
@@ -157,7 +152,8 @@ export const GamesRouter = ({ games, config }: IStuff) => {
 			}),
 			ErrorHandlerChecked(async (req, { body: { vote }, params: { gameID, playerID } }, res) => {
 				checkPlayerAuthorization(config, req, playerID)
-				games.setPayerVoteForGame(gameID, playerID, vote)
+				await games.setPayerVoteForGame(playerID, vote)
+				await sendGameUpdate(gameID)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),

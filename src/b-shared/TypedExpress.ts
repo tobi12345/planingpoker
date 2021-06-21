@@ -1,5 +1,5 @@
 import Express from "express"
-import { Checker, isCheckError } from "../../types-shared/typechecker"
+import { Checker, isCheckError } from "../types-shared/typechecker"
 import { HTTPStatusCodes } from "./HTTPStatusCodes"
 
 export type TypedRequestHandler<Request> = (

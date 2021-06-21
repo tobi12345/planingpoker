@@ -5,7 +5,8 @@ import { Server } from "./rest/Server"
 import { IServices, Services } from "../database/services/Services"
 import { loadEnvFromDotenv } from "../b-shared/utils/loadEnvFromDotenv"
 import { onShutdown } from "../b-shared/onShutdown"
-import { Games } from "./Games"
+import { GamesService } from "../b-games-service/GamesService"
+import { GameUpdateService } from "./GameUpdateService"
 
 require("source-map-support").install()
 
@@ -16,7 +17,8 @@ export interface IStuff {
 	database: IDatabaseBaseClient
 	services: IServices
 	config: IConfig
-	games: Games
+	games: GamesService
+	gameUpdateService: GameUpdateService
 }
 
 loadEnvFromDotenv(nodeEnv || "development")
@@ -40,7 +42,8 @@ loadEnvFromDotenv(nodeEnv || "development")
 		config,
 		database,
 		services,
-		games: Games(),
+		games: GamesService(config),
+		gameUpdateService: GameUpdateService(),
 	}
 
 	const server = Server(stuff)

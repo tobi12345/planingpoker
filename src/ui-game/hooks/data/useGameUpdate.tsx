@@ -51,7 +51,7 @@ const connect = (gameID: string, playerID: string, config: IConfig) => {
 		const claims = And(ConvertJson, checkSocketEvent)(event.data)
 
 		if (isCheckError(claims)) {
-			console.warn("unknown event data")
+			console.warn("unknown event data", claims[0])
 			return
 		}
 

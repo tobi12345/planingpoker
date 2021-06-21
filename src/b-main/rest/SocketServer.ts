@@ -8,7 +8,13 @@ const checkSocketConnectionSearchParams = Keys({
 	playerID: TypeString,
 })
 
-export const SocketServer = ({ server, stuff: { games } }: { server: http.Server; stuff: IStuff }) => {
+export const SocketServer = ({
+	server,
+	stuff: { games, gameUpdateService },
+}: {
+	server: http.Server
+	stuff: IStuff
+}) => {
 	const socketServer = new WebSocket.Server({ server })
 
 	socketServer.on("connection", function connection(ws, request) {
@@ -26,7 +32,7 @@ export const SocketServer = ({ server, stuff: { games } }: { server: http.Server
 		const { gameID, playerID } = claims[1]
 
 		try {
-			games.addPayerWebSocket(gameID, playerID, ws)
+			gameUpdateService.addPayerWebSocket(playerID, ws)
 		} catch (err) {
 			console.error(`onConnectionError: addPayerWebSocket`)
 			ws.close()
@@ -35,7 +41,7 @@ export const SocketServer = ({ server, stuff: { games } }: { server: http.Server
 
 		ws.onclose = () => {
 			console.log("by")
-			games.removePayerWebSocket(gameID, playerID)
+			gameUpdateService.removePayerWebSocket(playerID)
 		}
 	})
 }

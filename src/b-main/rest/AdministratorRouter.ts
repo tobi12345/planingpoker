@@ -1,9 +1,9 @@
 import { IStuff } from ".."
-import { HTTPStatusCodes } from "./HTTPStatusCodes"
-import { CheckRequestConvert, ErrorHandlerChecked } from "./TypedExpress"
 import { Keys, TypeString } from "../../types-shared/typechecker"
 import { AdministratorAuthRouter } from "./AdministratorAuth"
 import { checkGame } from "../../types-shared/game"
+import { HTTPStatusCodes } from "../../b-shared/HTTPStatusCodes"
+import { CheckRequestConvert, ErrorHandlerChecked } from "../../b-shared/TypedExpress"
 
 export const AdministratorRouter = ({ games, config }: IStuff) => {
 	const router = AdministratorAuthRouter()
@@ -13,7 +13,7 @@ export const AdministratorRouter = ({ games, config }: IStuff) => {
 		CheckRequestConvert(
 			Keys({}),
 			ErrorHandlerChecked(async (req, _, res) => {
-				const _games = games.getGames()
+				const _games = await games.getGames()
 				res.status(HTTPStatusCodes.OK).json(_games)
 			}),
 		),
@@ -29,7 +29,7 @@ export const AdministratorRouter = ({ games, config }: IStuff) => {
 				body: checkGame,
 			}),
 			ErrorHandlerChecked(async (req, { body: game }, res) => {
-				games.updateGame(game)
+				// games.updateGame(game)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),

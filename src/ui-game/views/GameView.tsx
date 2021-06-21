@@ -58,6 +58,8 @@ export const GameView = ({ gameID, player }: { gameID: string; player: Player })
 const Game = ({ game, player }: { game: Game; player: Player }) => {
 	const [showResult, { isLoading: isLoadingShowResult }] = useShowResult()
 
+	console.log({ game, player })
+
 	const myVote = game.players.find((_player) => _player.id === player.id)?.vote
 
 	return (
