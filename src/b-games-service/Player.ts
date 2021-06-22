@@ -73,7 +73,7 @@ export const GetGamePlayer = (client: redis.RedisClient) => (gameID: string) => 
 				),
 			)
 
-			resolve(players)
+			resolve(players ?? [])
 		})
 	})
 }

@@ -4,6 +4,7 @@ import {
 	checkCreatePlayerPayload,
 	checkPlayer,
 	checkSetPlayerVotePayload,
+	Game,
 } from "../../types-shared/game"
 import { isCheckError, Keys, TypeString } from "../../types-shared/typechecker"
 import * as jwt from "jsonwebtoken"
@@ -48,7 +49,11 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 			checkCreateGamePayload,
 			ErrorHandlerChecked(async (req, payload, res) => {
 				const game = await games.createGame(payload)
-				res.status(HTTPStatusCodes.CREATED).json(game)
+				const fullGame: Game = {
+					...game,
+					players: [],
+				}
+				res.status(HTTPStatusCodes.CREATED).json(fullGame)
 			}),
 		),
 	)
