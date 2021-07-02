@@ -8,7 +8,7 @@ import { VotingCards } from "../components/VotingCards"
 import { useGame } from "../hooks/data/useGame"
 import { useGameUpdate } from "../hooks/data/useGameUpdate"
 import { useShowResult } from "../hooks/data/useShowResult"
-import { Results } from "../components/Results"
+import { Results, useResults } from "../components/Results"
 import { ShareIcon } from "../components/ShareIcon"
 
 const GameContainer = styled.div`
@@ -57,9 +57,6 @@ export const GameView = ({ gameID, player }: { gameID: string; player: Player })
 
 const Game = ({ game, player }: { game: Game; player: Player }) => {
 	const [showResult, { isLoading: isLoadingShowResult }] = useShowResult()
-
-	console.log({ game, player })
-
 	const myVote = game.players.find((_player) => _player.id === player.id)?.vote
 
 	return (

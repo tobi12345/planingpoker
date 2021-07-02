@@ -13,7 +13,7 @@ const parsePlayerVote = (value: string | undefined) => {
 		return undefined
 	}
 
-	const res = parseInt(value ?? "")
+	const res = parseFloat(value ?? "")
 
 	return isNaN(res) ? value : res
 }

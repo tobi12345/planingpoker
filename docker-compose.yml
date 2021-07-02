@@ -33,6 +33,12 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql/data
 
+    redis:
+        image: redis
+        restart: always
+        networks:
+            - pp
+
     game-ui:
         build:
             context: .

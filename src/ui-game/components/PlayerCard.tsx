@@ -1,3 +1,4 @@
+import { Modal } from "antd"
 import React from "react"
 import styled from "styled-components"
 import { Player, VisibilityState } from "../../types-shared/game"
@@ -30,8 +31,12 @@ export const PlayerCard = ({
 }) => {
 	return (
 		<PlayerCardContainer>
-			{visibilityState === "hidden" && <PlayerCardHiddenBox>{vote && "👍"}</PlayerCardHiddenBox>}
-			{visibilityState === "display" && <PlayerCardResultBox>{vote ?? "🤦‍♀️"}</PlayerCardResultBox>}
+			{visibilityState === "hidden" && (
+				<PlayerCardHiddenBox>{vote !== undefined ? "👍" : ""}</PlayerCardHiddenBox>
+			)}
+			{visibilityState === "display" && (
+				<PlayerCardResultBox>{vote !== undefined ? vote : "🤦‍♀️"}</PlayerCardResultBox>
+			)}
 			<PlayerName>{name}</PlayerName>
 		</PlayerCardContainer>
 	)
