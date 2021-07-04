@@ -16,7 +16,7 @@ const ShareIconImage = styled.img`
 export const ShareIcon = ({ style, className }: { style?: React.CSSProperties; className?: string }) => {
 	const onClick = useCallback(() => {
 		copy(window.location.href)
-		message.info(`copied to clipboard`)
+		message.success(`Copied to clipboard`)
 	}, [])
 
 	return (
