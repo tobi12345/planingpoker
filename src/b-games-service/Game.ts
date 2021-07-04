@@ -1,22 +1,23 @@
 import redis from "redis"
 import * as uuid from "uuid"
 import * as faker from "faker"
-import { BaseGame } from "../types-shared/game"
+import { BaseGame, GameConfig } from "../types-shared/game"
 import { reject } from "lodash"
 import { NotFoundError } from "../b-shared/TypedExpress"
 
 const KEY_GAMES = "GAMES"
 
-export const CreateGame = (client: redis.RedisClient) => (creatorID: string) => {
+export const CreateGame = (client: redis.RedisClient) => (creatorID: string, config: GameConfig) => {
 	const game: BaseGame = {
 		creator: creatorID,
 		id: uuid.v4(),
 		name: faker.company.bs(),
 		visibilityState: "hidden",
+		config,
 	}
 
 	return new Promise<BaseGame>((resolve, reject) => {
-		client.hmset(game.id, ...Object.entries(game).flat(), (error) => {
+		client.hmset(game.id, ...Object.entries({ ...game, config: JSON.stringify(game.config) }).flat(), (error) => {
 			if (error) {
 				return reject()
 			}
@@ -38,7 +39,10 @@ export const GetGame = (client: redis.RedisClient) => (gameID: string) => {
 				reject(new NotFoundError(`Game with id: ${gameID} not found`))
 				return
 			}
-			resolve((game as any) as BaseGame)
+			resolve({
+				...game,
+				config: JSON.parse(game.config),
+			} as BaseGame)
 		})
 	})
 }

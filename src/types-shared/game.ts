@@ -17,11 +17,20 @@ export const checkPlayer = Keys<Player>({
 export type VisibilityState = "hidden" | "display"
 const checkVisibilityState = OneOf("hidden", "display")
 
+export interface GameConfig {
+	cards: string[]
+}
+
+export const checkGameConfig = Keys<GameConfig>({
+	cards: Items(TypeString),
+})
+
 export interface BaseGame {
 	id: string
 	name: string
 	creator: string
 	visibilityState: VisibilityState
+	config: GameConfig
 }
 export interface Game extends BaseGame {
 	players: Player[]
@@ -33,6 +42,7 @@ export const checkGame = Keys<Game>({
 	visibilityState: checkVisibilityState,
 	creator: TypeString,
 	players: Items(checkPlayer),
+	config: checkGameConfig,
 })
 
 export interface CreatePlayerPayload extends Pick<Player, "name"> {}
@@ -43,10 +53,12 @@ export const checkCreatePlayerPayload = Keys<CreatePlayerPayload>({
 
 export interface CreateGamePayload {
 	player: CreatePlayerPayload
+	config: GameConfig
 }
 
 export const checkCreateGamePayload = Keys<CreateGamePayload>({
 	player: checkCreatePlayerPayload,
+	config: checkGameConfig,
 })
 
 export interface SetPlayerVotePayload {

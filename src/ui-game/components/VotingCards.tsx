@@ -1,9 +1,8 @@
 import React from "react"
 import styled from "styled-components"
+import { Game } from "../../types-shared/game"
 import { useSetPlayerVote } from "../hooks/data/useSetPlayerVote"
 import { BaseCard } from "./BaseCard"
-
-const CARD_SCRORES = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, "?", "☕"]
 
 const VotingCardsContainer = styled.div``
 
@@ -29,30 +28,22 @@ const CardContainer = styled(BaseCard)`
 	}
 `
 
-export const VotingCards = ({
-	gameID,
-	playerID,
-	myVote,
-}: {
-	gameID: string
-	playerID: string
-	myVote?: number | string
-}) => {
+export const VotingCards = ({ game, playerID, myVote }: { game: Game; playerID: string; myVote?: number | string }) => {
 	const [setPlayerVote, {}] = useSetPlayerVote()
 
 	return (
 		<VotingCardsContainer>
 			<Title>Choose your card 👇</Title>
 			<VotingCardsWrapper>
-				{CARD_SCRORES.map((score) => (
+				{game.config.cards.map((score) => (
 					<CardContainer
 						style={{
-							transform: myVote === score ? `translateY(-10px)` : undefined,
+							transform: String(myVote) === score ? `translateY(-10px)` : undefined,
 						}}
 						key={score}
 						onClick={() => {
 							const vote = score === myVote ? undefined : score
-							setPlayerVote({ gameID, payload: { vote }, playerID })
+							setPlayerVote({ gameID: game.id, payload: { vote }, playerID })
 						}}
 					>
 						{score}

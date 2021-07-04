@@ -50,9 +50,9 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 			Keys({
 				body: checkCreateGamePayload,
 			}),
-			ErrorHandlerChecked(async (req, { body: { player } }, res) => {
+			ErrorHandlerChecked(async (req, { body: { player, config: gameConfig } }, res) => {
 				const playerID = uuid.v4()
-				const game = await games.createGame(playerID)
+				const game = await games.createGame(playerID, gameConfig)
 				const creatorPlayer = await games.addPayerToGame(game.id, player, playerID)
 				const token = jwt.sign(creatorPlayer, config.jwt.secret, {
 					expiresIn: "365d",

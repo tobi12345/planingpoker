@@ -8,7 +8,7 @@ import { VotingCards } from "../components/VotingCards"
 import { useGame } from "../hooks/data/useGame"
 import { useGameUpdate } from "../hooks/data/useGameUpdate"
 import { useShowResult } from "../hooks/data/useShowResult"
-import { Results, useResults } from "../components/Results"
+import { Results } from "../components/Results"
 import { ShareIcon } from "../components/ShareIcon"
 
 const GameContainer = styled.div`
@@ -83,7 +83,7 @@ const Game = ({ game, player }: { game: Game; player: Player }) => {
 					<PlayerCard key={player.id} player={player} visibilityState={game.visibilityState} />
 				))}
 			</PlayersContainer>
-			<VotingCards gameID={game.id} playerID={player.id} myVote={myVote} />
+			<VotingCards game={game} playerID={player.id} myVote={myVote} />
 			<div style={{ height: "30px" }}></div>
 			<StyledShareIcon />
 			{/* <pre>{JSON.stringify(game, null, 4)}</pre> */}
