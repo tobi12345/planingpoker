@@ -62,7 +62,7 @@ const Game = ({ game, player }: { game: Game; player: Player }) => {
 	return (
 		<GameContainer>
 			<GameTable>
-				{game.visibilityState === "display" && <Results game={game} />}
+				{game.visibilityState === "display" && <Results game={game} player={player} />}
 				{game.visibilityState === "hidden" && (
 					<Button
 						size="large"

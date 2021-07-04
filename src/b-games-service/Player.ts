@@ -24,9 +24,13 @@ const mapPlayer = (rawPlayer: RedisPlayerResult): Player => ({
 	vote: parsePlayerVote(rawPlayer.vote),
 })
 
-export const AddPayerToGame = (client: redis.RedisClient) => (gameID: string, payload: CreatePlayerPayload) => {
+export const AddPayerToGame = (client: redis.RedisClient) => (
+	gameID: string,
+	payload: CreatePlayerPayload,
+	id?: string,
+) => {
 	const player: Player = {
-		id: uuid.v4(),
+		id: id ?? uuid.v4(),
 		...payload,
 		isActive: false,
 	}

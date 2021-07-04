@@ -1,15 +1,15 @@
 import redis from "redis"
 import * as uuid from "uuid"
 import * as faker from "faker"
-import { BaseGame, CreateGamePayload } from "../types-shared/game"
+import { BaseGame } from "../types-shared/game"
 import { reject } from "lodash"
 import { NotFoundError } from "../b-shared/TypedExpress"
 
 const KEY_GAMES = "GAMES"
 
-export const CreateGame = (client: redis.RedisClient) => (payload: CreateGamePayload) => {
+export const CreateGame = (client: redis.RedisClient) => (creatorID: string) => {
 	const game: BaseGame = {
-		...payload,
+		creator: creatorID,
 		id: uuid.v4(),
 		name: faker.company.bs(),
 		visibilityState: "hidden",

@@ -54,7 +54,7 @@ export const ErrorHandlerChecked = <Request, B>(
 
 type BaseRequestHandler = (
 	path: string,
-	handler: (req: Express.Request, res: Express.Response, next: Express.NextFunction) => void,
+	...handler: Array<(req: Express.Request, res: Express.Response, next: Express.NextFunction) => void>
 ) => void
 export interface IBaseRouter {
 	use: (router: IBaseRouter) => void

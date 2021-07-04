@@ -22,7 +22,14 @@ export const useCreatePlayer = (
 			localStorage.setItem(variables.gameID, JSON.stringify(result.player))
 			localStorage.setItem(PLAYER_TOKEN, result.token)
 
+			setPlayer(variables.gameID, result.token, result.player)
 			if (config?.onSuccess) config.onSuccess(result, variables)
 		},
 	})
+}
+
+export const setPlayer = (gameID: string, token: string, player: Player) => {
+	queryCache.setQueryData(["player", gameID], () => player)
+	localStorage.setItem(gameID, JSON.stringify(player))
+	localStorage.setItem(PLAYER_TOKEN, token)
 }

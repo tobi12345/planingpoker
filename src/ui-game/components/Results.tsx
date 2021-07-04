@@ -26,7 +26,7 @@ interface PlayerWithVote extends Player {
 	vote: number
 }
 
-export const Results = ({ game }: { game: Game }) => {
+export const Results = ({ game, player }: { game: Game; player: Player }) => {
 	const [resetGame, { isLoading: isLoadingResetGame }] = useResetGame()
 	const [showFightModal, setShowFightModal] = useState(false)
 
@@ -58,7 +58,7 @@ export const Results = ({ game }: { game: Game }) => {
 				>
 					Reset
 				</Button>
-				{isConflict && (
+				{isConflict && player.id === game.creator && (
 					<Button
 						style={{ marginLeft: 10 }}
 						size="large"

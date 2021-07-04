@@ -13,6 +13,7 @@ import { IConfig } from "../config"
 import { HTTPStatusCodes } from "../../b-shared/HTTPStatusCodes"
 import { UnauthorizedError, BaseRouter, CheckRequestConvert, ErrorHandlerChecked } from "../../b-shared/TypedExpress"
 import { SendGameUpdate } from "../GameUpdateService"
+import * as uuid from "uuid"
 
 const checkPlayerAuthorization = (config: IConfig, req: e.Request, playerID: string) => {
 	const token = (req.query.authToken as string | undefined) ?? req.headers.authorization
@@ -46,14 +47,25 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 	router.post(
 		"/",
 		CheckRequestConvert(
-			checkCreateGamePayload,
-			ErrorHandlerChecked(async (req, payload, res) => {
-				const game = await games.createGame(payload)
+			Keys({
+				body: checkCreateGamePayload,
+			}),
+			ErrorHandlerChecked(async (req, { body: { player } }, res) => {
+				const playerID = uuid.v4()
+				const game = await games.createGame(playerID)
+				const creatorPlayer = await games.addPayerToGame(game.id, player, playerID)
+				const token = jwt.sign(creatorPlayer, config.jwt.secret, {
+					expiresIn: "365d",
+				})
 				const fullGame: Game = {
 					...game,
-					players: [],
+					players: [creatorPlayer],
 				}
-				res.status(HTTPStatusCodes.CREATED).json(fullGame)
+				res.status(HTTPStatusCodes.CREATED).json({
+					game: fullGame,
+					player: creatorPlayer,
+					token,
+				})
 			}),
 		),
 	)

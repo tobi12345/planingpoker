@@ -1,9 +1,15 @@
 import { AxiosInstance } from "axios"
 import { CreateGamePayload, Game, CreatePlayerPayload, Player, SetPlayerVotePayload } from "../../types-shared/game"
 
+export interface CreateGameResult {
+	game: Game
+	player: Player
+	token: string
+}
+
 export const GameService = (api: AxiosInstance) => {
 	const createGame = async (payload: CreateGamePayload) => {
-		const response = await api.post<Game>(`/games`, payload)
+		const response = await api.post<CreateGameResult>(`/games`, payload)
 		return response.data
 	}
 

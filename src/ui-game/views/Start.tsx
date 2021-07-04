@@ -38,13 +38,6 @@ const Bulletpoint = styled.div`
 export const Start = () => {
 	const history = useHistory()
 
-	const [createGame, { isLoading }] = useCreateGame({
-		onSuccess: (game) => {
-			console.log(game)
-			history.push(`/${game.id}`)
-		},
-	})
-
 	return (
 		<StartContainer>
 			<Headline>simple planing poker</Headline>
@@ -56,7 +49,7 @@ export const Start = () => {
 					<Bulletpoint>3. play game</Bulletpoint>
 				</Bulletpoints>
 			</ContentContainer>
-			<Button size="large" type="primary" loading={isLoading} onClick={() => createGame()}>
+			<Button size="large" type="primary" onClick={() => history.push(`/creategame`)}>
 				Create new game
 			</Button>
 		</StartContainer>
