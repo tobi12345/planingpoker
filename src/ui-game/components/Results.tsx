@@ -10,6 +10,10 @@ const ResultStatisticsContainer = styled.div`
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-gap: 20px;
+
+	@media (max-width: 700px) {
+		margin-top: 100px;
+	}
 `
 
 const Result = styled.div`
