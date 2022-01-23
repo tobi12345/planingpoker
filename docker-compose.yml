@@ -1,6 +1,7 @@
 version: "3.3"
 services:
     backend:
+        restart: always
         build:
             context: .
             dockerfile: ./config_docker/backend.dockerfile
@@ -40,6 +41,7 @@ services:
             - pp
 
     game-ui:
+        restart: always
         build:
             context: .
             dockerfile: ./config_docker/dashboard.ui.dockerfile
