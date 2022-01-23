@@ -1,3 +1,4 @@
 # pp
+A tool to play planing poker. Intended for remote sprint meetings
 
-colors: https://flatuicolors.com/palette/ca
+Link: https://pp.kleselcodes.de/
