@@ -2,7 +2,7 @@ const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const webpack = require("webpack")
 const getEnvs = require("./getEnvs")
-const FaviconsWebpackPlugin = require("favicons-webpack-plugin")
+// const FaviconsWebpackPlugin = require("favicons-webpack-plugin")
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin")
 const getPort = require("get-port")
 
@@ -11,6 +11,7 @@ module.exports = async (envs) => {
 	const ports = new Set([envPort, 3000, 3001, 3002])
 
 	const port = await getPort({ port: Array.from(ports.values()) })
+	console.log(envs)
 
 	return {
 		mode: "development",
@@ -29,7 +30,7 @@ module.exports = async (envs) => {
 				filename: "index.html",
 				inject: "body",
 			}),
-			new FaviconsWebpackPlugin(path.resolve(__dirname, "..", "assets", "ace-of-diamonds.png")),
+			// new FaviconsWebpackPlugin(path.resolve(__dirname, "..", "assets", "ace-of-diamonds.png")),
 		],
 		module: {
 			rules: [
@@ -46,20 +47,14 @@ module.exports = async (envs) => {
 		devtool: "inline-source-map",
 		devServer: {
 			hot: true,
-			clientLogLevel: "none",
-			noInfo: true,
 			open: true,
 			port,
 			host: "0.0.0.0",
-			onListening: function (server) {
-				const port = server.listeningApp.address().port
+			onListening: function (devServer) {
+				const port = devServer.server.address().port
 				console.log("Listening on port:", port)
 			},
-			watchOptions: {
-				ignored: [/node_modules/],
-			},
 			historyApiFallback: true,
-			disableHostCheck: true,
 		},
 	}
 }

@@ -1,7 +1,6 @@
 import { Game } from "../types-shared/game"
 import { GameUpdate } from "../types-shared/SocketEvent"
 import WebSocket from "ws"
-import { GamesService } from "../b-games-service/GamesService"
 
 export type GameUpdateService = ReturnType<typeof GameUpdateService>
 
@@ -40,9 +39,4 @@ export const GameUpdateService = () => {
 		removePayerWebSocket,
 		sendGameUpdate,
 	}
-}
-
-export const SendGameUpdate = (games: GamesService, gameUpdateService: GameUpdateService) => async (gameID: string) => {
-	const game = await games.getFullGame(gameID)
-	gameUpdateService.sendGameUpdate(game)
 }

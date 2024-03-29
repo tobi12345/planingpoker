@@ -9,7 +9,7 @@
 		"declaration": true,
 		"esModuleInterop": true
 	},
-	"include": ["../src/b-main", "../src/database", "../src/b-shared", "../src/b-games-service"],
+	"include": ["../src/b-main", "../src/b-shared", "../src/b-games-service"],
 	"compileOnSave": true,
 	"references": [
 		{

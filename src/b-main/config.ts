@@ -1,8 +1,6 @@
 import { IBaseConfig } from "../b-shared/BaseConfig"
-import { IDatabaseConfig } from "../database/database"
 
 export interface IConfig extends IBaseConfig {
-	database: IDatabaseConfig
 	rest: {
 		port: number
 		key: string
@@ -23,14 +21,6 @@ export const configFromEnv = (): IConfig => {
 	}
 
 	return {
-		database: {
-			host: process.env["POSTGRES_HOST"] || "",
-			port: getInteger(process.env["POSTGRES_PORT"]) || 5432,
-			database: process.env["POSTGRES_DATABASE"] || "",
-			password: process.env["POSTGRES_PASSWORD"],
-			user: process.env["POSTGRES_USER"] || "postgres",
-			clear: process.env["POSTGRES_CLEAR"] === "true",
-		},
 		passwordSecret: process.env["PASSWORD_SECRET"] || "72865779884567890093833338832837151253192",
 		rest: {
 			port: parseInt(process.env["PORT"] || "4001"),
@@ -40,10 +30,6 @@ export const configFromEnv = (): IConfig => {
 			secret: process.env["JWT_SECRET"] || "",
 		},
 		instanceID: process.env["INSTANCE_ID"] || "main",
-		redis: {
-			host: process.env["REDIS_HOST"] || "localhost",
-			port: parseInt(process.env["REDIS_PORT"] || "6379"),
-		},
 	}
 }
 

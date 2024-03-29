@@ -81,6 +81,7 @@ export const Results = ({ game, player }: { game: Game; player: Player }) => {
 
 export const useResults = (game: Game) => {
 	return useMemo(() => {
+		console.log(game)
 		const playerWithVote = game.players.filter((player) => typeof player.vote === "number") as PlayerWithVote[]
 		const averageVote = playerWithVote.reduce((acc, cur) => acc + (cur.vote ?? 0), 0) / playerWithVote.length
 		const maxPlayer = maxBy(playerWithVote, (player) => player.vote)

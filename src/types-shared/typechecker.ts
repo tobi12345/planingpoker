@@ -77,7 +77,7 @@ export const KeysPartial = <T>(schema: KeysSchema<T>): Checker<Partial<Record<ke
 			(value) => {
 				const result = test(value[key])
 				if (isCheckError(result)) {
-					return [result[0].map((error) => "." + key + " " + error)]
+					return [result[0].map((error) => "." + String(key) + " " + error)]
 				}
 
 				return result
@@ -211,7 +211,7 @@ export const TypeMatches = (name: string, regexp: RegExp): Checker<string, strin
 export const ConvertJson: Checker<string, unknown> = (value) => {
 	try {
 		return [null, JSON.parse(value)]
-	} catch (e) {
+	} catch (e: any) {
 		return [["failed parsing string as json, " + e.message]]
 	}
 }
@@ -276,11 +276,11 @@ export const TypeArray = (value: unknown): Check<unknown[]> =>
 export const TypeCheck = <U, T extends U>(check: (value: U) => value is T, type = "custom type") => (
 	value: U,
 ): Check<T> => (check(value) ? [null, value] : [[`expected ${type}`]])
-export const TypeEnum = <T>(_enum: T) =>
+export const TypeEnum = <T extends ArrayLike<any>>(_enum: T) =>
 	<Checker<unknown, T[keyof T]>>(
 		(<unknown>OneOf(...Object.values(_enum).filter((x): x is number => typeof x === "number")))
 	)
-export const TypeEnumString = <T>(_enum: T) =>
+export const TypeEnumString = <T extends ArrayLike<any>>(_enum: T) =>
 	<Checker<unknown, T[keyof T]>>(
 		(<unknown>OneOf(...Object.values(_enum).filter((x): x is string => typeof x === "string")))
 	)
@@ -302,7 +302,7 @@ export const parsesAs = <T = never>(check: Checker<T, unknown>): Checker<T, T> =
 export const ConvertDate: Checker<unknown, Date> = And(TypeString, (value: string) => {
 	try {
 		return [null, new Date(value)]
-	} catch (e) {
+	} catch (e: any) {
 		return [[e.message]]
 	}
 })
@@ -315,7 +315,7 @@ export const MinLength = (minLength: number): Checker<string, string> => (value)
 export const MaxLength = (maxLength: number): Checker<string, string> => (value) =>
 	value.length <= maxLength ? [null, value] : [[`expected maximum string length ${maxLength}`]]
 
-export const selectType = <T>(_enum: T) => {
+export const selectType = <T extends ArrayLike<any>>(_enum: T) => {
 	const checkType = Keys({
 		type: TypeEnumString(_enum),
 	})

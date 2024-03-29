@@ -21,7 +21,7 @@ interface CheckedRequest {
 	body?: object
 	header?: object
 }
-export const CheckRequestConvert = <R, B>(
+export const CheckRequestConvert = <R extends CheckedRequest, B>(
 	checker: Checker<CheckedRequest, B>,
 	handler: CheckedRequestHandler<R, B>,
 ): TypedRequestHandler<R> => (request, response, next) => {

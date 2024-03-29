@@ -1,4 +1,15 @@
-import { Items, Keys, OneOf, Or, TypeBoolean, TypeNumber, TypeString, TypeUndefined, TypeUnknown } from "./typechecker"
+import {
+	ConvertParseInt,
+	Items,
+	Keys,
+	OneOf,
+	Or,
+	TypeBoolean,
+	TypeNumber,
+	TypeString,
+	TypeUndefined,
+	TypeUnknown,
+} from "./typechecker"
 
 export interface Player {
 	id: string
@@ -66,5 +77,5 @@ export interface SetPlayerVotePayload {
 }
 
 export const checkSetPlayerVotePayload = Keys<SetPlayerVotePayload>({
-	vote: Or(Or(TypeNumber, TypeUndefined), TypeString),
+	vote: Or(Or(Or(TypeNumber, ConvertParseInt), TypeUndefined), TypeString),
 })

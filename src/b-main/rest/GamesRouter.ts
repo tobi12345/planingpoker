@@ -12,7 +12,6 @@ import e from "express"
 import { IConfig } from "../config"
 import { HTTPStatusCodes } from "../../b-shared/HTTPStatusCodes"
 import { UnauthorizedError, BaseRouter, CheckRequestConvert, ErrorHandlerChecked } from "../../b-shared/TypedExpress"
-import { SendGameUpdate } from "../GameUpdateService"
 import * as uuid from "uuid"
 
 const checkPlayerAuthorization = (config: IConfig, req: e.Request, playerID: string) => {
@@ -42,8 +41,6 @@ const checkPlayerAuthorization = (config: IConfig, req: e.Request, playerID: str
 export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 	const router = BaseRouter()
 
-	const sendGameUpdate = SendGameUpdate(games, gameUpdateService)
-
 	router.post(
 		"/",
 		CheckRequestConvert(
@@ -52,8 +49,8 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 			}),
 			ErrorHandlerChecked(async (req, { body: { player, config: gameConfig } }, res) => {
 				const playerID = uuid.v4()
-				const game = await games.createGame(playerID, gameConfig)
-				const creatorPlayer = await games.addPayerToGame(game.id, player, playerID)
+				const game = games.createGame(gameConfig, playerID)
+				const creatorPlayer = games.addPayerToGame(game.id, player, playerID)
 				const token = jwt.sign(creatorPlayer, config.jwt.secret, {
 					expiresIn: "365d",
 				})
@@ -79,7 +76,7 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
-				const game = await games.getFullGame(gameID)
+				const game = games.getGame(gameID)
 				res.status(HTTPStatusCodes.OK).json(game)
 			}),
 		),
@@ -94,9 +91,8 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
-				await games.resetGame(gameID)
-				await games.resetGamePlayer(gameID)
-				await sendGameUpdate(gameID)
+				const game = games.resetGame(gameID)
+				gameUpdateService.sendGameUpdate(game)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
@@ -111,8 +107,8 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
-				await games.displayGameResult(gameID)
-				await sendGameUpdate(gameID)
+				const game = games.displayGameResult(gameID)
+				gameUpdateService.sendGameUpdate(game)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
@@ -128,12 +124,12 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 				}),
 			}),
 			ErrorHandlerChecked(async (req, { body: createPlayerPayload, params: { gameID } }, res) => {
-				await games.getGame(gameID)
-				const player = await games.addPayerToGame(gameID, createPlayerPayload)
+				games.getGame(gameID)
+				const player = games.addPayerToGame(gameID, createPlayerPayload)
 				const token = jwt.sign(player, config.jwt.secret, {
 					expiresIn: "365d",
 				})
-				await sendGameUpdate(gameID)
+				gameUpdateService.sendGameUpdate(games.getGame(gameID))
 				res.status(HTTPStatusCodes.OK).json({ token, player })
 			}),
 		),
@@ -151,7 +147,6 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 			ErrorHandlerChecked(async (req, { params: { gameID, playerID } }, res) => {
 				console.log("remove ws over post")
 				gameUpdateService.removePayerWebSocket(playerID)
-				await sendGameUpdate(gameID)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
@@ -169,8 +164,8 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 			}),
 			ErrorHandlerChecked(async (req, { body: { vote }, params: { gameID, playerID } }, res) => {
 				checkPlayerAuthorization(config, req, playerID)
-				await games.setPayerVoteForGame(playerID, vote)
-				await sendGameUpdate(gameID)
+				const game = games.setPayerVoteForGame(gameID, playerID, vote)
+				gameUpdateService.sendGameUpdate(game)
 				res.status(HTTPStatusCodes.OK).end()
 			}),
 		),
