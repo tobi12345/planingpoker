@@ -63,6 +63,5 @@ networks:
     proxy:
         external: true
         name: "traefik_proxy"
-
 # volumes:
 #     pgdata:
