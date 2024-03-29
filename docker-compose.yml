@@ -8,12 +8,12 @@ services:
         env_file: production.env
         command: ./dist/b-main/index.js
         ports:
-            - 4000:4000
+            - 3000:3000
         networks:
             - pp
             - proxy
-        depends_on:
-            - postgres
+        # depends_on:
+        #     - postgres
         labels:
             - "traefik.enable=true"
             - "traefik.http.middlewares.backend_stripprefix.stripprefix.prefixes=/api"
@@ -21,24 +21,24 @@ services:
             - "traefik.http.routers.backend.rule=Host(`pp.kleselcodes.de`) && PathPrefix(`/api`)"
             - "traefik.http.routers.backend.entrypoints=websecure"
             - "traefik.http.routers.backend.tls.certresolver=myresolver"
-            - "traefik.http.services.backend.loadbalancer.server.port=4000"
-    postgres:
-        image: postgres
-        restart: always
-        environment:
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_USER: postgres
-            POSTGRES_DB: pp
-        networks:
-            - pp
-        volumes:
-            - pgdata:/var/lib/postgresql/data
+            - "traefik.http.services.backend.loadbalancer.server.port=3000"
+    # postgres:
+    #     image: postgres
+    #     restart: always
+    #     environment:
+    #         POSTGRES_PASSWORD: postgres
+    #         POSTGRES_USER: postgres
+    #         POSTGRES_DB: pp
+    #     networks:
+    #         - pp
+    #     volumes:
+    #         - pgdata:/var/lib/postgresql/data
 
-    redis:
-        image: redis
-        restart: always
-        networks:
-            - pp
+    # redis:
+    #     image: redis
+    #     restart: always
+    #     networks:
+    #         - pp
 
     game-ui:
         restart: always
@@ -61,8 +61,8 @@ services:
 networks:
     pp:
     proxy:
-        external:
-            name: "traefik_proxy"
+        external: true
+        name: "traefik_proxy"
 
-volumes:
-    pgdata:
+# volumes:
+#     pgdata:

@@ -1,5 +1,5 @@
 import {
-	ConvertParseInt,
+	ConvertParseFloat,
 	Items,
 	Keys,
 	OneOf,
@@ -77,5 +77,5 @@ export interface SetPlayerVotePayload {
 }
 
 export const checkSetPlayerVotePayload = Keys<SetPlayerVotePayload>({
-	vote: Or(Or(Or(TypeNumber, ConvertParseInt), TypeUndefined), TypeString),
+	vote: Or(Or(Or(TypeNumber, ConvertParseFloat), TypeUndefined), TypeString),
 })
