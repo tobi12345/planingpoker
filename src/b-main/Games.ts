@@ -2,7 +2,7 @@ import * as uuid from "uuid"
 import * as faker from "faker"
 import { Game, Player, CreatePlayerPayload, GameConfig } from "../types-shared/game"
 import { NotFoundError } from "../b-shared/TypedExpress"
-
+import { maxBy, minBy, sample } from "lodash"
 export type Games = ReturnType<typeof Games>
 
 export const Games = () => {
@@ -16,6 +16,7 @@ export const Games = () => {
 			creator,
 			visibilityState: "hidden",
 			config,
+			conflictResolution: undefined,
 		}
 
 		games.set(game.id, game)
@@ -52,6 +53,7 @@ export const Games = () => {
 		}
 		game.players = game.players.map((player) => ({ ...player, vote: undefined }))
 		game.visibilityState = "hidden"
+		game.conflictResolution = undefined
 		return game
 	}
 
@@ -98,6 +100,55 @@ export const Games = () => {
 		return game
 	}
 
+	const nextConflictResolutionState = (gameID: string) => {
+		const game = games.get(gameID)
+		if (!game) {
+			throw new NotFoundError(`Game ${gameID} not found`)
+		}
+		if (game.conflictResolution === undefined) {
+			if (game.visibilityState === "hidden") {
+				throw new NotFoundError(`Game ${gameID} is in hidden state`)
+			}
+			const question = sample({
+				WhyNot: (points?: number | string, points2?: number | string) => `why is it not a ${points2} for you?`,
+				Why: (points?: number | string, points2?: number | string) => `why is it a ${points} for you?`,
+				Different: (points?: number | string, points2?: number | string) =>
+					`what makes it a ${points} not a ${points2} for you?`,
+			})!
+
+			const firstPlayer = maxBy(game.players, (player) => player.vote)!
+			const secondPlayer = minBy(game.players, (player) => player.vote)!
+
+			game.conflictResolution = {
+				state: "prepare_first",
+				firstPlayer: firstPlayer.id,
+				secondPlayer: secondPlayer.id,
+				firstQuestion: question(firstPlayer.vote, secondPlayer.vote),
+				secondQuestion: question(secondPlayer.vote, firstPlayer.vote),
+			}
+			return game
+		}
+
+		switch (game.conflictResolution.state) {
+			case "prepare_first": {
+				game.conflictResolution.state = "argument_first"
+				return game
+			}
+			case "argument_first": {
+				game.conflictResolution.state = "prepare_second"
+				return game
+			}
+			case "prepare_second": {
+				game.conflictResolution.state = "argument_second"
+				return game
+			}
+			case "argument_second": {
+				game.conflictResolution = undefined
+				return game
+			}
+		}
+	}
+
 	return {
 		createGame,
 		getGame,
@@ -108,5 +159,6 @@ export const Games = () => {
 		addPayerToGame,
 		removePayerFromGame,
 		setPayerVoteForGame,
+		nextConflictResolutionState,
 	}
 }

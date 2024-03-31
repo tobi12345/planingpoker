@@ -171,5 +171,21 @@ export const GamesRouter = ({ games, gameUpdateService, config }: IStuff) => {
 		),
 	)
 
+	router.put(
+		"/:gameID/conflict/next",
+		CheckRequestConvert(
+			Keys({
+				params: Keys({
+					gameID: TypeString,
+				}),
+			}),
+			ErrorHandlerChecked(async (req, { params: { gameID } }, res) => {
+				const game = games.nextConflictResolutionState(gameID)
+				gameUpdateService.sendGameUpdate(game)
+				res.status(HTTPStatusCodes.OK).end()
+			}),
+		),
+	)
+
 	return router as any
 }

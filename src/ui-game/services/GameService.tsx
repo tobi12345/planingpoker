@@ -38,6 +38,11 @@ export const GameService = (api: AxiosInstance) => {
 		return response.data
 	}
 
+	const nextConflictResolutionState = async (gameID: string) => {
+		const response = await api.put<void>(`/games/${gameID}/conflict/next`)
+		return response.data
+	}
+
 	return {
 		createGame,
 		getGame,
@@ -45,5 +50,6 @@ export const GameService = (api: AxiosInstance) => {
 		setPlayerVote,
 		resetGame,
 		showResult,
+		nextConflictResolutionState,
 	}
 }

@@ -1,10 +1,11 @@
 import { Button, Modal, Typography } from "antd"
-import { maxBy, minBy, sample, shuffle } from "lodash"
-import React, { useCallback, useMemo, useState } from "react"
+import { maxBy, minBy } from "lodash"
+import React, { useMemo } from "react"
 import styled from "styled-components"
 import { Player, Game } from "../../types-shared/game"
 import { useResetGame } from "../hooks/data/useResetGame"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
+import { useNextConflictResolutionState } from "../hooks/data/useNextConflictResolutionState"
 
 const ResultStatisticsContainer = styled.div`
 	display: grid;
@@ -32,9 +33,9 @@ interface PlayerWithVote extends Player {
 
 export const Results = ({ game, player }: { game: Game; player: Player }) => {
 	const [resetGame, { isLoading: isLoadingResetGame }] = useResetGame()
-	const [showFightModal, setShowFightModal] = useState(false)
 
 	const { averageVote, maxPlayer, maxPlayers, minPlayer, minPlayers, isConflict } = useResults(game)
+	const [nextConflictResolutionState] = useNextConflictResolutionState()
 
 	return (
 		<>
@@ -68,13 +69,13 @@ export const Results = ({ game, player }: { game: Game; player: Player }) => {
 						size="large"
 						type="primary"
 						loading={isLoadingResetGame}
-						onClick={() => setShowFightModal(true)}
+						onClick={() => nextConflictResolutionState({ gameID: game.id })}
 					>
 						🤜🏻 🤛🏿
 					</Button>
 				)}
 			</div>
-			{showFightModal && <FightModal game={game} onClose={() => setShowFightModal(false)} />}
+			{game.conflictResolution && <FightModal game={game} />}
 		</>
 	)
 }
@@ -107,39 +108,38 @@ export const useResults = (game: Game) => {
 	}, [game])
 }
 
-const Questions = {
-	WhyNot: (points?: number | string, points2?: number | string) => `why is it not a ${points2} for you?`,
-	Why: (points?: number | string, points2?: number | string) => `why is it a ${points} for you?`,
-	Different: (points?: number | string, points2?: number | string) =>
-		`what makes it a ${points} not a ${points2} for you?`,
-}
-
-const randomQuestion = () => sample(Object.values(Questions))!
-
-const FightModal = ({ game, onClose }: { game: Game; onClose: () => void }) => {
-	const { maxPlayers, minPlayers } = useResults(game)
-
-	const playerFromID = (name: string) => game.players.find((p) => p.name === name)
-	const [[player1, player2]] = useState(
-		shuffle([playerFromID(sample(maxPlayers)!), playerFromID(sample(minPlayers)!)]),
-	)
-	const question = useCallback(randomQuestion(), [])
-
-	const [state, setState] = useState<"pre-round-one" | "round-one" | "pre-round-two" | "round-two">("pre-round-one")
+const FightModal = ({ game }: { game: Game }) => {
+	const [nextConflictResolutionState] = useNextConflictResolutionState()
+	const firstPlayer = game.players.find((player) => player.id === game.conflictResolution?.firstPlayer)!
+	const secondPlayer = game.players.find((player) => player.id === game.conflictResolution?.secondPlayer)!
 
 	return (
-		<Modal title="Conflict Management" centered visible={true} footer={null} onOk={() => {}} onCancel={onClose}>
-			{state === "pre-round-one" && <ConflictPreRound onNext={() => setState("round-one")} player={player1!} />}
-			{state === "pre-round-two" && <ConflictPreRound onNext={() => setState("round-two")} player={player2!} />}
-			{state === "round-one" && (
-				<ConflictRound
-					onDone={() => setState("pre-round-two")}
-					player={player1!}
-					question={question(player1?.vote, player2?.vote)}
+		<Modal title="Conflict Management" centered visible={true} footer={null} onOk={() => {}}>
+			{game.conflictResolution?.state === "prepare_first" && (
+				<ConflictPreRound
+					onNext={() => nextConflictResolutionState({ gameID: game.id })}
+					player={firstPlayer!}
 				/>
 			)}
-			{state === "round-two" && (
-				<ConflictRound onDone={onClose} player={player2!} question={question(player2?.vote, player1?.vote)} />
+			{game.conflictResolution?.state === "prepare_second" && (
+				<ConflictPreRound
+					onNext={() => nextConflictResolutionState({ gameID: game.id })}
+					player={secondPlayer!}
+				/>
+			)}
+			{game.conflictResolution?.state === "argument_first" && (
+				<ConflictRound
+					onDone={() => nextConflictResolutionState({ gameID: game.id })}
+					player={firstPlayer}
+					question={game.conflictResolution.firstQuestion}
+				/>
+			)}
+			{game.conflictResolution?.state === "argument_second" && (
+				<ConflictRound
+					onDone={() => nextConflictResolutionState({ gameID: game.id })}
+					player={secondPlayer}
+					question={game.conflictResolution.secondQuestion}
+				/>
 			)}
 		</Modal>
 	)
@@ -165,14 +165,7 @@ const ConflictRoundContainer = styled.div`
 const ConflictRound = ({ onDone, player, question }: { onDone: () => void; player: Player; question: string }) => {
 	return (
 		<ConflictRoundContainer>
-			<CountdownCircleTimer
-				isPlaying={true}
-				size={120}
-				strokeWidth={6}
-				colors={"#218380"}
-				duration={30}
-				onComplete={(totalElapsedTime) => onDone()}
-			>
+			<CountdownCircleTimer isPlaying={true} size={120} strokeWidth={6} colors={"#218380"} duration={30}>
 				{({ elapsedTime }) => (
 					<div style={{ display: "grid", placeItems: "center" }}>
 						<div>{Math.floor(30 - (elapsedTime ?? 0))}</div>

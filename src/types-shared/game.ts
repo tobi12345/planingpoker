@@ -8,7 +8,6 @@ import {
 	TypeNumber,
 	TypeString,
 	TypeUndefined,
-	TypeUnknown,
 } from "./typechecker"
 
 export interface Player {
@@ -31,9 +30,26 @@ const checkVisibilityState = OneOf("hidden", "display")
 export interface GameConfig {
 	cards: string[]
 }
-
 export const checkGameConfig = Keys<GameConfig>({
 	cards: Items(TypeString),
+})
+
+type ConflictResolutionState = "prepare_first" | "argument_first" | "prepare_second" | "argument_second"
+const checkConflictResolutionState = OneOf("prepare_first", "argument_first", "prepare_second", "argument_second")
+
+export interface ConflictResolution {
+	state: ConflictResolutionState
+	firstPlayer: string
+	firstQuestion: string
+	secondPlayer: string
+	secondQuestion: string
+}
+export const checkConflictResolution = Keys<ConflictResolution>({
+	state: checkConflictResolutionState,
+	firstPlayer: TypeString,
+	secondPlayer: TypeString,
+	firstQuestion: TypeString,
+	secondQuestion: TypeString,
 })
 
 export interface BaseGame {
@@ -41,6 +57,7 @@ export interface BaseGame {
 	name: string
 	creator: string
 	visibilityState: VisibilityState
+	conflictResolution: undefined | ConflictResolution
 	config: GameConfig
 }
 export interface Game extends BaseGame {
@@ -52,6 +69,7 @@ export const checkGame = Keys<Game>({
 	name: TypeString,
 	visibilityState: checkVisibilityState,
 	creator: TypeString,
+	conflictResolution: Or(TypeUndefined, checkConflictResolution),
 	players: Items(checkPlayer),
 	config: checkGameConfig,
 })
