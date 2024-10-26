@@ -1,40 +1,40 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  push:
-    branches: [ main ]
-
+    push:
+        branches: [main]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: self-hosted
+    # This workflow contains a single job called "build"
+    build:
+        # The type of runner that the job will run on
+        runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-    
-      # Runs a set of commands using the runners shell
-      - name: docker login
-        run: docker login docker.pkg.github.com -u tobi12345 -p ${{ secrets.GITHUB_TOKEN }}
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v4
 
-      # Runs a set of commands using the runners shell
-      - name: docker build
-        run: |
-          docker build -t docker.pkg.github.com/tobi12345/fc-v2/backend:latest --file ./config_docker/backend.dockerfile .
-          docker build -t docker.pkg.github.com/tobi12345/fc-v2/dashboard-ui:latest --file ./config_docker/dashboard.ui.dockerfile .
-      
-      # Runs a set of commands using the runners shell
-      - name: docker push
-        run: |
-          docker push docker.pkg.github.com/tobi12345/fc-v2/backend:latest
-          docker push docker.pkg.github.com/tobi12345/fc-v2/dashboard-ui:latest
-      
-  
+            - name: Login to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            # Runs a set of commands using the runners shell
+            - name: backend
+              run: |
+                  docker build -t pp/backend -f ./config_docker/backend.dockerfile .
+                  docker tag pp/backend:latest ghcr.io/tobi12345/pp/backend:latest
+                  docker push ghcr.io/tobi12345/pp/backend:latest
+
+            # Runs a set of commands using the runners shell
+            - name: ui
+              run: |
+                  docker build -t pp/ui -f ./config_docker/dashboard.ui.dockerfile .
+                  docker tag pp/ui:latest ghcr.io/tobi12345/pp/ui:latest
+                  docker push ghcr.io/tobi12345/pp/ui:latest
